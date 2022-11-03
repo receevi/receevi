@@ -1,7 +1,9 @@
 import Image from 'next/image'
 import styles from './page.module.css'
+import clientPromise from '../lib/mongodb'
 
-export default function Home() {
+export default async function Home() {
+  await clientPromise
   return (
     <div className={styles.container}>
       <main className={styles.main}>
