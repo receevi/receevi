@@ -11,7 +11,7 @@ export default function ContactUI(props: { contact: Contact }) {
                     <BlankUser />
                 </div>
                 <div className="flex items-center">
-                    <span>{contact.wa_id}</span>
+                    <span>{contact.wa_id} ({contact.profile.name})</span>
                 </div>
             </div>
         </Link>
