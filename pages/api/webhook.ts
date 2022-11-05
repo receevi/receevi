@@ -30,7 +30,7 @@ export default async function handler(
     res: NextApiResponse
 ) {
     const client = await clientPromise;
-    const db = client.db("wawebhook");
+    const db = client.db();
     const webhookBody = req.body as WebHookRequest;
     if (webhookBody.entry.length > 0) {
         const changes = webhookBody.entry[0].changes;

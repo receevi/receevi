@@ -4,7 +4,7 @@ import ContactUI from "./ContactUI";
 
 export default async function ChatContacts() {
     const client = await clientPromise;
-    const db = client.db("wawebhook");
+    const db = client.db();
     const contacts: Contact[] = await db
         .collection("contacts")
         .find({})
