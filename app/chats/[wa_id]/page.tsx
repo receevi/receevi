@@ -1,3 +1,4 @@
+import { DBCollection } from "../../../enums/DBCollections";
 import clientPromise from "../../../lib/mongodb";
 import { Message, TextMessage } from "../../../types/Message";
 import ReceivedTextMessageUI from "./ReceivedTextMessageUI";
@@ -6,7 +7,7 @@ export default async function ContactChat({ params }: {params: {wa_id: string}})
     const client = await clientPromise;
     const db = client.db();
     const messages: Message[] = await db
-        .collection("messages")
+        .collection(DBCollection.Messages)
         .find({
             from: params.wa_id
         })

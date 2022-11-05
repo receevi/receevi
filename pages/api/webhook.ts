@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { DBCollection } from '../../enums/DBCollections'
 import clientPromise from '../../lib/mongodb'
 import { Contact } from '../../types/contact'
 import { Message } from '../../types/Message'
@@ -42,7 +43,7 @@ export default async function handler(
                 for (const contact of contacts) {
                     contact.last_msg_received = new Date().valueOf();
                     await db
-                        .collection("contacts")
+                        .collection(DBCollection.Contacts)
                         .updateOne(
                             { wa_id: contact.wa_id },
                             { $set: contact },
