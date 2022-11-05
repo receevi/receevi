@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+[data-nextjs-scroll-focus-boundary] {
+  display: contents;
+}
+
 html,
 body {
   padding: 0;
