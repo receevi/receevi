@@ -8,6 +8,7 @@ export default async function ChatContacts() {
     const contacts: Contact[] = await db
         .collection("contacts")
         .find({})
+        .sort({ last_msg_received: -1 })
         .toArray();
     return (
         <div className="flex flex-col">

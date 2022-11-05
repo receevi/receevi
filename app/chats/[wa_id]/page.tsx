@@ -10,6 +10,7 @@ export default async function ContactChat({ params }: {params: {wa_id: string}})
         .find({
             from: params.wa_id
         })
+        .sort({ timestamp: 1 })
         .toArray();
     return (
         <div className="bg-conversation-panel-background h-full">
@@ -18,7 +19,7 @@ export default async function ContactChat({ params }: {params: {wa_id: string}})
                     {
                         messages.map((message) => {
                             return (
-                                <div className="my-2">
+                                <div className="my-2" key={message.id}>
                                     {
                                         (() => {
                                             switch(message.type) {
