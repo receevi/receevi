@@ -14,7 +14,7 @@ export default async function ChatContacts() {
     return (
         <div className="flex flex-col">
             {contacts.map(contact => {
-                return <ContactUI contact={contact} />
+                return <ContactUI key={contact.wa_id} contact={contact} />
             })}
         </div>
     )
