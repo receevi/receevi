@@ -19,7 +19,7 @@ type WebHookRequest = {
                         contacts: Contact[],
                         messages: Message[],
                     },
-                    field: "messages"
+                    field: string
                 }
             ]
         }
@@ -34,27 +34,34 @@ export default async function handler(
     const db = client.db();
     const webhookBody = req.body as WebHookRequest;
     if (webhookBody.entry.length > 0) {
+        await db
+            .collection(DBCollection.Entries)
+            .insertMany(webhookBody.entry)
         const changes = webhookBody.entry[0].changes;
         if (changes.length > 0) {
-            const changeValue = changes[0].value;
-            const contacts = changeValue.contacts;
-            const messages = changeValue.messages;
-            if (contacts.length > 0) {
-                for (const contact of contacts) {
-                    contact.last_msg_received = new Date().valueOf();
+            if (changes[0].field === "messages") {
+                const changeValue = changes[0].value;
+                const contacts = changeValue.contacts;
+                const messages = changeValue.messages;
+                if (contacts && contacts.length > 0) {
+                    for (const contact of contacts) {
+                        contact.last_msg_received = new Date().valueOf();
+                        await db
+                            .collection(DBCollection.Contacts)
+                            .updateOne(
+                                { wa_id: contact.wa_id },
+                                { $set: contact },
+                                { upsert: true }
+                            );
+                    }
+                }
+                if (messages) {
                     await db
-                        .collection(DBCollection.Contacts)
-                        .updateOne(
-                            { wa_id: contact.wa_id },
-                            { $set: contact },
-                            { upsert: true }
-                        );
+                    .collection(DBCollection.Messages)
+                    .insertMany(messages)
                 }
             }
-            await db
-                .collection("messages")
-                .insertMany(messages)
         }
     }
-    res.status(200).json({});
+    res.status(200).send("");
 }
