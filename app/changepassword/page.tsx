@@ -1,40 +1,35 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useRouter } from 'next/navigation';
 import TWLoader from "../../components/TWLoader";
-import { LoginResponse } from "../../types/login-response";
 
-export default function LoginClientComponent() {
-    const [ username, setUsername ] = useState("");
-    const [ password, setPassword ] = useState("");
+export default function ChangePasswordClientComponent() {
+    const [ currentPassword, setCurrentPassword ] = useState("");
+    const [ newPassword, setNewPassword ] = useState("");
+    const [ repeatPassword, setRepeatPassword ] = useState("");
     const [ loading, setLoading ] = useState(false);
     const [ errorMessage, setErrorMessage ] = useState("");
     const router = useRouter()
-    const onLoginSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    const onChangePasswordSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setErrorMessage("");
         setLoading(true)
         let routingToNextPage = false;
         try {
-            const loginResponse = await fetch('/api/login', {
+            const loginResponse = await fetch('/api/changepassword', {
                 method: "POST",
                 credentials: 'include',
                 body: JSON.stringify({
-                    username: username,
-                    password: password,
+                    currentPassword: currentPassword,
+                    newPassword: newPassword,
                 })
             })
             if (loginResponse.status == 400) {
                 const errorBody = await loginResponse.json()
                 setErrorMessage(errorBody.message);
             } else if (loginResponse.status == 200) {
-                const successBody: LoginResponse = await loginResponse.json()
-                if (successBody.isInitialPassword) {
-                    router.push('/changepassword');
-                } else {
-                    router.push('/chats');
-                }
+                router.push('/chats');
                 routingToNextPage = true;
             } else {
                 setErrorMessage("Something went wrong");
@@ -47,21 +42,30 @@ export default function LoginClientComponent() {
     }
     return (
         <div className="h-screen flex items-center justify-center">
-            <form className="flex flex-col gap-4 bg-indigo-100 p-8 rounded-lg w-80" method="POST" onSubmit={onLoginSubmit}>
+            <form className="flex flex-col gap-4 bg-indigo-100 p-8 rounded-lg w-80" method="POST" onSubmit={onChangePasswordSubmit}>
+                <h2 className="text-lg text-center">Change password</h2>
                 <div className="flex flex-col">
-                    <label htmlFor="username">Username</label>
+                    <label htmlFor="currentPassword">Current password</label>
                     <input
-                        name="username" id="username" placeholder="Username"
-                        className="p-2 border rounded"
-                        value={username} onChange={(event) => setUsername(event.target.value)}
+                        name="currentPassword" id="currentPassword" placeholder="Current password"
+                        type="password" className="p-2 border rounded"
+                        value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)}
                         required />
                 </div>
                 <div className="flex flex-col">
-                    <label htmlFor="password">Password</label>
+                    <label htmlFor="newPassword">New password</label>
                     <input
-                        name="password" id="password" placeholder="Password"
+                        name="newPassword" id="newPassword" placeholder="New password"
                         type="password" className="p-2 border rounded"
-                        value={password} onChange={(event) => setPassword(event.target.value)}
+                        value={newPassword} onChange={(event) => setNewPassword(event.target.value)}
+                        required />
+                </div>
+                <div className="flex flex-col">
+                    <label htmlFor="repeatPassword">Repeat password</label>
+                    <input
+                        name="repeatPassword" id="repeatPassword" placeholder="Repeat password"
+                        type="password" className="p-2 border rounded"
+                        value={repeatPassword} onChange={(event) => setRepeatPassword(event.target.value)}
                         required />
                 </div>
                 <div>
@@ -73,7 +77,7 @@ export default function LoginClientComponent() {
                             if (loading) {
                                 return <TWLoader className="w-5 h-5 text-white"/>
                             } else {
-                                return "Login"
+                                return "Change"
                             }
                         })()}
                     </button>

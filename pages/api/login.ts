@@ -6,14 +6,9 @@ import bcrypt from "bcrypt";
 import constants from "../../lib/constants";
 import { PublicUser } from "../../types/public-user";
 import { sign } from "../../lib/jwt_sign_verify";
+import { LoginResponse } from "../../types/login-response";
 
 type LoginBody = User;
-
-type LoginResponse = {
-    username?: string,
-    isInitialPassword?: boolean,
-    message?: string,
-}
 
 export default async function handler(
     req: NextApiRequest,

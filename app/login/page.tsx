@@ -6,13 +6,17 @@ import { verify } from "../../lib/jwt_sign_verify";
 
 export default async function LoginServerComponent() {
     const clientCookies = cookies();
-    const token = clientCookies.get(constants.TOKEN_COOKIE_NAME)?.value
+    const token = clientCookies.get(constants.TOKEN_COOKIE_NAME)?.value || null
+    let isUserLoggedIn = false;
     if (token) {
         try {
             await verify(token, process.env.JWT_SECRET_KEY);
-            redirect('/chats')
-        } catch (error) {
-        }
+            isUserLoggedIn = true;
+        } catch (error) { }
     }
-    return <LoginClientComponent/>
+    if (isUserLoggedIn) {
+        redirect('/chats')
+    } else {
+        return <LoginClientComponent/>
+    }
 }
