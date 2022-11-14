@@ -3,4 +3,5 @@ export enum DBCollection {
     Messages = "messages",
     Users = "users",
     Entries = "entries",
+    KeyVal = "keyval",
 }

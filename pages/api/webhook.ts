@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { DBCollection } from '../../enums/DBCollections'
 import clientPromise from '../../lib/mongodb'
+import subscribeWebhook from '../../lib/webhook/subscribe'
 import { Contact } from '../../types/contact'
 import { Message } from '../../types/Message'
 
@@ -30,38 +31,44 @@ export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
-    const client = await clientPromise;
-    const db = client.db();
-    const webhookBody = req.body as WebHookRequest;
-    if (webhookBody.entry.length > 0) {
-        await db
-            .collection(DBCollection.Entries)
-            .insertMany(webhookBody.entry)
-        const changes = webhookBody.entry[0].changes;
-        if (changes.length > 0) {
-            if (changes[0].field === "messages") {
-                const changeValue = changes[0].value;
-                const contacts = changeValue.contacts;
-                const messages = changeValue.messages;
-                if (contacts && contacts.length > 0) {
-                    for (const contact of contacts) {
-                        contact.last_msg_received = new Date().valueOf();
-                        await db
-                            .collection(DBCollection.Contacts)
-                            .updateOne(
-                                { wa_id: contact.wa_id },
-                                { $set: contact },
-                                { upsert: true }
-                            );
+    if (req.method === "GET") {
+        await subscribeWebhook(req, res)
+    } else if (req.method === "POST") {
+        const client = await clientPromise;
+        const db = client.db();
+        const webhookBody = req.body as WebHookRequest;
+        if (webhookBody.entry.length > 0) {
+            await db
+                .collection(DBCollection.Entries)
+                .insertMany(webhookBody.entry)
+            const changes = webhookBody.entry[0].changes;
+            if (changes.length > 0) {
+                if (changes[0].field === "messages") {
+                    const changeValue = changes[0].value;
+                    const contacts = changeValue.contacts;
+                    const messages = changeValue.messages;
+                    if (contacts && contacts.length > 0) {
+                        for (const contact of contacts) {
+                            contact.last_msg_received = new Date().valueOf();
+                            await db
+                                .collection(DBCollection.Contacts)
+                                .updateOne(
+                                    { wa_id: contact.wa_id },
+                                    { $set: contact },
+                                    { upsert: true }
+                                );
+                        }
                     }
-                }
-                if (messages) {
-                    await db
-                    .collection(DBCollection.Messages)
-                    .insertMany(messages)
+                    if (messages) {
+                        await db
+                        .collection(DBCollection.Messages)
+                        .insertMany(messages)
+                    }
                 }
             }
         }
+        res.status(200).send("");
+    } else {
+        res.status(400).send("");
     }
-    res.status(200).send("");
 }
