@@ -3,7 +3,12 @@ import clientPromise from "../../lib/mongodb";
 import { Contact } from "../../types/contact";
 import ContactUI from "./ContactUI";
 
-export default async function ChatContacts() {
+// hack to bypass typescript (temporarily)
+function asyncComponent<T, R>(fn: (arg: T) => Promise<R>): (arg: T) => R {
+    return fn as (arg: T) => R;
+}
+
+const ChatContacts = asyncComponent(async () => {
     const client = await clientPromise;
     const db = client.db();
     const contacts = await db
@@ -18,4 +23,6 @@ export default async function ChatContacts() {
             })}
         </div>
     )
-}
+})
+
+export default ChatContacts;
