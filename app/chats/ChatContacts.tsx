@@ -6,8 +6,8 @@ import ContactUI from "./ContactUI";
 export default async function ChatContacts() {
     const client = await clientPromise;
     const db = client.db();
-    const contacts: Contact[] = await db
-        .collection(DBCollection.Contacts)
+    const contacts = await db
+        .collection<Contact>(DBCollection.Contacts)
         .find({})
         .sort({ last_msg_received: -1 })
         .toArray();

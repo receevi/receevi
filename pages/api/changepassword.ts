@@ -42,8 +42,8 @@ export default async function handler(
 
     const passwordChangeBody = JSON.parse(req.body) as PassWordChangeBody;
     const userFromMongoDB = await db
-        .collection(DBCollection.Users)
-        .findOne({guid: userData.guid}) as User | null
+        .collection<User>(DBCollection.Users)
+        .findOne({guid: userData.guid})
     console.log('userFromMongoDB', userFromMongoDB);
     if (userFromMongoDB == null) {
         return res.status(400).json({
@@ -58,7 +58,7 @@ export default async function handler(
     }
     const hashedNewPassword = await bcrypt.hash(passwordChangeBody.newPassword, 10);
     await db
-        .collection(DBCollection.Users)
+        .collection<User>(DBCollection.Users)
         .updateOne(
             { username: userData.username },
             {

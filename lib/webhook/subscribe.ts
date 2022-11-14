@@ -15,7 +15,7 @@ export default async function subscribeWebhook(
     if (mode && token && challenge) {
         const client = await clientPromise;
         const db = client.db();
-        const verifyTokenKeyVal = await db.collection(DBCollection.KeyVal).findOne({ key: constants.MONGO_KEY_VERIFY_TOKEN }) as (KeyVal | null)
+        const verifyTokenKeyVal = await db.collection<KeyVal>(DBCollection.KeyVal).findOne({ key: constants.MONGO_KEY_VERIFY_TOKEN })
         if (!verifyTokenKeyVal) {
             console.error("Incomplete setup. Please call /setup first");
             res.status(400).send("");

@@ -18,8 +18,8 @@ export default async function handler(
     const db = client.db();
     const loginBody = JSON.parse(req.body) as LoginBody;
     const userFromMongoDB = await db
-        .collection(DBCollection.Users)
-        .findOne({username: loginBody.username}) as User | null
+        .collection<User>(DBCollection.Users)
+        .findOne({username: loginBody.username})
     if (userFromMongoDB == null) {
         return res.status(400).json({
             message: "Invalid username or password",
