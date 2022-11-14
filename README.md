@@ -4,8 +4,14 @@
 
 This project is meant to be used as whatsapp cloud api webhook receiver. This project is currently in progress.
 
+## Work done so far
+- Login with admin user working
+- Contacts list just like in whatsapp web
+- Text message is visible (Other messsage types are yet to be done)
+![alt text](images/message.png)
+
 ## Roadmap
-- User should be able to view received messages
+- User should be able to view received all type of messages
 
 ## Getting Started
 
