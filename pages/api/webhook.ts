@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { DBCollection } from '../../enums/DBCollections'
 import clientPromise from '../../lib/mongodb'
+import { verifyWebhook } from '../../lib/verify'
 import subscribeWebhook from '../../lib/webhook/subscribe'
 import { Contact } from '../../types/contact'
 import { Message } from '../../types/Message'
@@ -34,9 +35,14 @@ export default async function handler(
     if (req.method === "GET") {
         await subscribeWebhook(req, res)
     } else if (req.method === "POST") {
+        const xHubSigrature256 = req.headers['x-hub-signature-256'] as (string | undefined);
+        const rawRequestBody = req.read().toString();
+        if (!xHubSigrature256 || !verifyWebhook(rawRequestBody, xHubSigrature256)) {
+            res.status(401).send("");
+        }
+        const webhookBody = JSON.parse(rawRequestBody) as WebHookRequest;
         const client = await clientPromise;
         const db = client.db();
-        const webhookBody = req.body as WebHookRequest;
         if (webhookBody.entry.length > 0) {
             await db
                 .collection(DBCollection.Entries)
@@ -72,3 +78,9 @@ export default async function handler(
         res.status(400).send("");
     }
 }
+
+export const config = {
+    api: {
+        bodyParser: false
+    }
+};
