@@ -38,7 +38,7 @@ export default async function handler(
         const xHubSigrature256 = req.headers['x-hub-signature-256'] as (string | undefined);
         const rawRequestBody = req.read().toString();
         if (!xHubSigrature256 || !verifyWebhook(rawRequestBody, xHubSigrature256)) {
-            res.status(401).send("");
+            return res.status(401).send("");
         }
         const webhookBody = JSON.parse(rawRequestBody) as WebHookRequest;
         const client = await clientPromise;
