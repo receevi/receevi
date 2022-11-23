@@ -18,7 +18,10 @@ export async function middleware(request: NextRequest) {
         const loginUrl = new URL('/login', request.url)
         return NextResponse.redirect(loginUrl)
     }
-    return NextResponse.next();
+    let response = NextResponse.next();
+    response.headers.set('Cache-Control', 'no-cache');
+    console.log('hello', response.headers);
+    return response;
 }
 
 export const config = {
