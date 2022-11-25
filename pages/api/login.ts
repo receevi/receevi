@@ -37,7 +37,9 @@ export default async function handler(
         guid: userFromMongoDB.guid,
     }
     const token = await sign(JSON.stringify(publicUser), jwtSecretKey);
-    res.setHeader("Set-Cookie", `${constants.TOKEN_COOKIE_NAME}=${token}; Path=/; Expires=${constants.COOKIE_MAX_AGE}`)
+    const tokenCookie = `${constants.TOKEN_COOKIE_NAME}=${token}; Path=/; Expires=${constants.COOKIE_MAX_AGE}`;
+    const noCacheCookie = `${constants.NO_CACHE_COOKIE_NAME}=1; Path=/; Expires=${constants.COOKIE_MAX_AGE}`;
+    res.setHeader("Set-Cookie", [tokenCookie, noCacheCookie]);
     res.status(200)
     res.json({
         username: userFromMongoDB.username,
