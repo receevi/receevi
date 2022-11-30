@@ -12,3 +12,13 @@ export type TextMessageBody = {
 export type TextMessage = Message & {
     text: TextMessageBody
 }
+
+export type ImageMessageBody = {
+    mime_type: string,
+    sha256: string,
+    id: string,
+}
+
+export type ImageMessage = Message & {
+    image: ImageMessageBody,
+}

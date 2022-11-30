@@ -1,6 +1,7 @@
 import { DBCollection } from "../../../enums/DBCollections";
 import clientPromise from "../../../lib/mongodb";
-import { Message, TextMessage } from "../../../types/Message";
+import { ImageMessage, Message, TextMessage } from "../../../types/Message";
+import ReceivedImageMessageUI from "./ReceivedImageMessageUI";
 import ReceivedTextMessageUI from "./ReceivedTextMessageUI";
 
 export default async function ContactChat({ params }: {params: {wa_id: string}}) {
@@ -26,6 +27,8 @@ export default async function ContactChat({ params }: {params: {wa_id: string}})
                                             switch(message.type) {
                                                 case "text":
                                                     return <ReceivedTextMessageUI textMessage={message as TextMessage} />
+                                                case "image":
+                                                    return <ReceivedImageMessageUI imageMessage={message as ImageMessage} />
                                                 default:
                                                     return <div>Unsupported message</div>
                                             }

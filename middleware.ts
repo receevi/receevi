@@ -20,7 +20,6 @@ export async function middleware(request: NextRequest) {
     }
     let response = NextResponse.next();
     response.headers.set('Cache-Control', 'no-cache');
-    console.log('hello', response.headers);
     return response;
 }
 

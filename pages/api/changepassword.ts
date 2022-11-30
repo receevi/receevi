@@ -3,9 +3,7 @@ import { DBCollection } from "../../enums/DBCollections";
 import clientPromise from "../../lib/mongodb";
 import { User } from "../../types/user.db";
 import bcrypt from "bcrypt";
-import constants from "../../lib/constants";
-import { PublicUser } from "../../types/public-user";
-import { verify } from "../../lib/jwt_sign_verify";
+import { getUserDataFromRequest } from "../../lib/userdata";
 
 type PassWordChangeBody = {
     currentPassword: string,
@@ -24,23 +22,11 @@ export default async function handler(
 ) {
     const client = await clientPromise;
     const db = client.db();
-    const tokenFromCookie = req.cookies[constants.TOKEN_COOKIE_NAME]
-    let userData: PublicUser | null;
-    const jwtSecretKey = process.env.JWT_SECRET_KEY;
-    if (!tokenFromCookie) {
-        return res.status(401).send("")
-    }
-    try {
-        const tokenData = await verify(tokenFromCookie, jwtSecretKey);
-        userData = JSON.parse(tokenData['payload'] as string);
-    } catch (error) {
-        userData = null;
-    }
+    const userData = await getUserDataFromRequest(req);
     if (!userData) {
         return res.status(401).send("")
     }
 
-    const passwordChangeBody = JSON.parse(req.body) as PassWordChangeBody;
     const userFromMongoDB = await db
         .collection<User>(DBCollection.Users)
         .findOne({guid: userData.guid})
@@ -50,6 +36,7 @@ export default async function handler(
             message: "Something went wrong",
         })
     }
+    const passwordChangeBody = JSON.parse(req.body) as PassWordChangeBody;
     const passwordResult = await bcrypt.compare(passwordChangeBody.currentPassword, userFromMongoDB.password);
     if (!passwordResult) {
         return res.status(400).json({
