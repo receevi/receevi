@@ -1,5 +1,8 @@
 # Whatsapp Webhook
 
+## Shape project future with Your Feedback
+Help us improve our open-source "WhatsApp Webhook" project! Share your thoughts and suggestions in our community discussion: [Click here](https://github.com/whatsapp-webhook/whatsapp-webhook/discussions/2)
+
 ## * IN PROGRESS *
 
 This project is meant to be used as whatsapp cloud api webhook receiver. This project is currently in progress.
