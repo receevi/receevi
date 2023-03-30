@@ -1,10 +1,23 @@
+import 'server-only'
+
+import SupabaseListener from '../components/supabase-listener'
+import SupabaseProvider from '../components/supabase-provider'
+import { createClient } from '../utils/supabase-server'
 import './globals.css'
 
-export default function RootLayout({
+// do not cache this layout
+export const revalidate = 0
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const supabase = createClient()
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
   return (
     <html lang="en">
       <head>
@@ -12,7 +25,12 @@ export default function RootLayout({
         <meta name="description" content="Whatsapp Cloud API Webhook" />
         <link rel="icon" href="/favicon.ico" />
       </head>
-      <body>{children}</body>
+      <body>
+        <SupabaseProvider>
+          <SupabaseListener serverAccessToken={session?.access_token} />
+          {children}
+        </SupabaseProvider>
+      </body>
     </html>
   )
 }

@@ -1,31 +1,31 @@
+import { createMiddlewareSupabaseClient } from '@supabase/auth-helpers-nextjs'
 import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-import constants from './lib/constants';
-import { redirect } from 'next/navigation';
-import { verify } from './lib/jwt_sign_verify';
 
-export async function middleware(request: NextRequest) {
-    const token = request.cookies.get(constants.TOKEN_COOKIE_NAME)
-    let isUserLoggedIn = false;
-    if (token) {
-        try {
-            await verify(token.value, process.env.JWT_SECRET_KEY);
-            isUserLoggedIn = true;
-        } catch (error) {
-        }
-    }
-    if (!isUserLoggedIn) {
-        const loginUrl = new URL('/login', request.url)
-        return NextResponse.redirect(loginUrl)
-    }
-    let response = NextResponse.next();
-    response.headers.set('Cache-Control', 'no-cache');
-    return response;
+import type { NextRequest } from 'next/server'
+import type { Database } from './lib/database.types'
+
+export async function middleware(req: NextRequest) {
+  const res = NextResponse.next()
+
+  const supabase = createMiddlewareSupabaseClient<Database>({ req, res })
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
+  if (session) {
+    return res
+  }
+
+  const loginUrl = new URL('/login', req.url)
+  loginUrl.searchParams.set('from', req.nextUrl.pathname)
+
+  return NextResponse.redirect(loginUrl)
 }
 
 export const config = {
-    matcher: [
-        '/chats/:path*',
-        '/changepassword/:path*',
-    ],
+  matcher: [
+      '/chats/:path*',
+      '/changepassword/:path*',
+  ],
 }
