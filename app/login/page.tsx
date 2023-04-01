@@ -3,8 +3,11 @@ import LoginWrapper from "./LoginWrapper";
 
 export default async function LoginServerComponent() {
     return (
-        <LoginWrapper>
-            <LoginClientComponent />
-        </LoginWrapper>
+        <>
+            {/* @ts-expect-error Server Component */}
+            <LoginWrapper>
+                <LoginClientComponent />
+            </LoginWrapper>
+        </>
     )
 }
