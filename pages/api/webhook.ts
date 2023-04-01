@@ -2,7 +2,6 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { DBCollection } from '../../enums/DBCollections'
 import clientPromise from '../../lib/mongodb'
 import { verifyWebhook } from '../../lib/verify'
-import subscribeWebhook from '../../lib/webhook/subscribe'
 import { Contact } from '../../types/contact'
 import { Message } from '../../types/Message'
 
@@ -32,9 +31,7 @@ export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
-    if (req.method === "GET") {
-        await subscribeWebhook(req, res)
-    } else if (req.method === "POST") {
+    if (req.method === "POST") {
         const xHubSigrature256 = req.headers['x-hub-signature-256'] as (string | undefined);
         const rawRequestBody = req.read().toString();
         if (!xHubSigrature256 || !verifyWebhook(rawRequestBody, xHubSigrature256)) {

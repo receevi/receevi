@@ -7,6 +7,8 @@ declare global {
             WHATSAPP_ACCESS_TOKEN: string;
             NEXT_PUBLIC_SUPABASE_ANON_KEY: string;
             NEXT_PUBLIC_SUPABASE_URL: string;
+            SUPABASE_SERVICE_ROLE: string;
+            WEBHOOK_VERIFY_TOKEN: string;
         }
     }
 }
