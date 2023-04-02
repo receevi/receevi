@@ -1,7 +1,6 @@
 export type Contact = {
-    wa_id: string,
-    last_msg_received: number,
-    profile: {
-        name: string
-    }
+    wa_id: number,
+    created_at: string | null,
+    last_message_at: string | null,
+    profile_name: string | null,
 }

@@ -1,7 +1,6 @@
-import { DBCollection } from "../../enums/DBCollections";
-import clientPromise from "../../lib/mongodb";
-import { Contact } from "../../types/contact";
-import ContactUI from "./ContactUI";
+import { DBTables } from "../../enums/Tables";
+import { createClient } from "../../utils/supabase-server";
+import ChatContactsClient from "./ChatContactsClient";
 
 // hack to bypass typescript (temporarily)
 function asyncComponent<T, R>(fn: (arg: T) => Promise<R>): (arg: T) => R {
@@ -9,18 +8,15 @@ function asyncComponent<T, R>(fn: (arg: T) => Promise<R>): (arg: T) => R {
 }
 
 const ChatContacts = asyncComponent(async () => {
-    const client = await clientPromise;
-    const db = client.db();
-    const contacts = await db
-        .collection<Contact>(DBCollection.Contacts)
-        .find({})
-        .sort({ last_msg_received: -1 })
-        .toArray();
+    const supabase = createClient();
+    const { data: contacts , error } = await supabase
+        .from(DBTables.Contacts)
+        .select('*')
+        .order('last_message_at', { ascending: false })
+    if (error) throw error
     return (
         <div className="flex flex-col">
-            {contacts.map(contact => {
-                return <ContactUI key={contact.wa_id} contact={contact} />
-            })}
+            <ChatContactsClient contacts={contacts} />
         </div>
     )
 })

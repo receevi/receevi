@@ -29,7 +29,6 @@ export async function POST(request: NextRequest) {
   const headersList = headers();
   const xHubSigrature256 = headersList.get('x-hub-signature-256');
   const rawRequestBody = await request.text()
-  console.log('rawRequestBody', rawRequestBody)
   if (!xHubSigrature256 || !verifyWebhook(rawRequestBody, xHubSigrature256)) {
     return new NextResponse(null, { status: 401 })
   }
@@ -55,6 +54,7 @@ export async function POST(request: NextRequest) {
               .upsert({
                 wa_id: contact.wa_id,
                 profile_name: contact.profile.name,
+                last_message_at: new Date()
               })
             if (error) throw error
           }
