@@ -17,7 +17,7 @@ export default async function ContactChat({ params }: { params: { wa_id: string 
                 {
                     (() => {
                         if (messages != null) {
-                            return <MessageListClient messages={messages} />
+                            return <MessageListClient from={params.wa_id} messages={messages} />
                         }
                     })()
                 }

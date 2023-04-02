@@ -8,13 +8,18 @@ import { createClient } from "../../../utils/supabase-browser"
 import ReceivedImageMessageUI from "./ReceivedImageMessageUI"
 import ReceivedTextMessageUI from "./ReceivedTextMessageUI"
 
-export default function MessageListClient({ messages }: { messages: Message[] }) {
+export default function MessageListClient({ messages, from }: { messages: Message[], from: string }) {
     const [supabase] = useState(() => createClient())
     const [stateMessages, setMessages ] = useState<Message[]>(messages)
     useEffect(() => {
         const channel = supabase
             .channel('any')
-            .on<Message>('postgres_changes', { event: 'INSERT', schema: 'public', table: DBTables.Messages }, payload => {
+            .on<Message>('postgres_changes', {
+                event: 'INSERT',
+                schema: 'public',
+                table: DBTables.Messages,
+                filter: `from=eq.${from}`
+            }, payload => {
                 setMessages([...stateMessages, payload.new])
             })
             .subscribe()
