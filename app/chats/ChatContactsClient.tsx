@@ -20,7 +20,7 @@ export default function ChatContactsClient({ contacts }: { contacts: Contact[] }
                         break;
                     case "UPDATE":
                         const indexOfItem = contactsState.findIndex((contact: Contact) => contact.wa_id == payload.old.wa_id)
-                        if (indexOfItem != 1) {
+                        if (indexOfItem !== -1) {
                             contactsState[indexOfItem] = payload.new
                             contactsState.sort((a: Contact, b: Contact) => {
                                 if (!a.last_message_at || !b.last_message_at) {
