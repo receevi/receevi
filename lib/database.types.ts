@@ -6,6 +6,13 @@ export type Json =
   | { [key: string]: Json }
   | Json[]
 
+export type Message = {
+  created_at: string
+  from: number
+  id: number
+  message: Json | null
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -47,18 +54,8 @@ export interface Database {
         }
       }
       messages: {
-        Row: {
-          created_at: string
-          from: number
-          id: number
-          message: Json | null
-        }
-        Insert: {
-          created_at?: string
-          from: number
-          id?: number
-          message?: Json | null
-        }
+        Row: Message
+        Insert: Message
         Update: {
           created_at?: string
           from?: number

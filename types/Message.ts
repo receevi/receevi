@@ -1,4 +1,5 @@
-export type Message = {
+
+export type MessageJson = {
     from: string,
     id: string,
     timestamp: string,
@@ -9,7 +10,7 @@ export type TextMessageBody = {
     body: string,
 }
 
-export type TextMessage = Message & {
+export type TextMessage = MessageJson & {
     text: TextMessageBody
 }
 
@@ -19,6 +20,6 @@ export type ImageMessageBody = {
     id: string,
 }
 
-export type ImageMessage = Message & {
+export type ImageMessage = MessageJson & {
     image: ImageMessageBody,
 }
