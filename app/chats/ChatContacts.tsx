@@ -2,6 +2,8 @@ import { DBTables } from "../../enums/Tables";
 import { createClient } from "../../utils/supabase-server";
 import ChatContactsClient from "./ChatContactsClient";
 
+export const revalidate = 0
+
 // hack to bypass typescript (temporarily)
 function asyncComponent<T, R>(fn: (arg: T) => Promise<R>): (arg: T) => R {
     return fn as (arg: T) => R;
