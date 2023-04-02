@@ -2,19 +2,18 @@
 
 import { useEffect, useState } from "react"
 import { DBTables } from "../../../enums/Tables"
-import { Message } from "../../../lib/database.types"
-import { ImageMessage, MessageJson, TextMessage } from "../../../types/Message"
+import { MessageJson, TextMessage } from "../../../types/Message"
 import { createClient } from "../../../utils/supabase-browser"
 import ReceivedImageMessageUI from "./ReceivedImageMessageUI"
 import ReceivedTextMessageUI from "./ReceivedTextMessageUI"
 
-export default function MessageListClient({ messages, from }: { messages: Message[], from: string }) {
+export default function MessageListClient({ messages, from }: { messages: DBMessage[], from: string }) {
     const [supabase] = useState(() => createClient())
-    const [stateMessages, setMessages ] = useState<Message[]>(messages)
+    const [stateMessages, setMessages ] = useState<DBMessage[]>(messages)
     useEffect(() => {
         const channel = supabase
             .channel('any')
-            .on<Message>('postgres_changes', {
+            .on<DBMessage>('postgres_changes', {
                 event: 'INSERT',
                 schema: 'public',
                 table: DBTables.Messages,
@@ -37,7 +36,7 @@ export default function MessageListClient({ messages, from }: { messages: Messag
                                     case "text":
                                         return <ReceivedTextMessageUI textMessage={messageBody as TextMessage} />
                                     case "image":
-                                        return <ReceivedImageMessageUI imageMessage={messageBody as ImageMessage} />
+                                        return <ReceivedImageMessageUI message={message} />
                                     default:
                                         return <div>Unsupported message</div>
                                 }

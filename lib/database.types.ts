@@ -6,13 +6,6 @@ export type Json =
   | { [key: string]: Json }
   | Json[]
 
-export type Message = {
-  created_at: string
-  from: number
-  id: number
-  message: Json | null
-}
-
 export interface Database {
   public: {
     Tables: {
@@ -54,13 +47,29 @@ export interface Database {
         }
       }
       messages: {
-        Row: Message
-        Insert: Message
+        Row: {
+          created_at: string
+          from: number
+          id: number
+          media_url: string | null
+          message: Json
+          wam_id: string
+        }
+        Insert: {
+          created_at?: string
+          from: number
+          id?: number
+          media_url?: string | null
+          message: Json
+          wam_id: string
+        }
         Update: {
           created_at?: string
           from?: number
           id?: number
-          message?: Json | null
+          media_url?: string | null
+          message?: Json
+          wam_id?: string
         }
       }
       webhook: {

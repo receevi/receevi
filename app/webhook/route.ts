@@ -4,6 +4,7 @@ import { verifyWebhook } from '../../lib/verify';
 import { WebHookRequest } from '../../types/webhook';
 import { createServiceClient } from '../../lib/supabase/service-client';
 import { DBTables } from '../../enums/Tables';
+import { downloadMedia } from './media';
 
 export const revalidate = 0
 
@@ -65,10 +66,16 @@ export async function POST(request: NextRequest) {
             .insert(messages.map(message => {
               return {
                 from: message.from,
-                message: message
+                message: message,
+                wam_id: message.id,
               }
             }))
           if (error) throw error
+          for (const message of messages) {
+            if (message.type === 'image') {
+              await downloadMedia(message)
+            }
+          }
         }
       }
     }
