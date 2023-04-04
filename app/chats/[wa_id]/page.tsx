@@ -11,7 +11,8 @@ export default async function ContactChat({ params }: { params: { wa_id: string 
         .from(DBTables.Messages)
         .select('*')
         .eq('from', params.wa_id)
-    if (error) throw error
+        .order('created_at', { ascending: true })
+        if (error) throw error
     return (
         <div className="bg-conversation-panel-background h-full relative">
             <div className="bg-chat-img h-full w-full absolute bg-[length:412.5px_749.25px] opacity-40"></div>
