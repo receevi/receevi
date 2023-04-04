@@ -17,6 +17,9 @@ module.exports = {
         'app-background-stripe': '#00a884',
         'app-background': '#eae6df',
         'incoming-background': '#fff',
+        'panel-header-background': '#f0f2f5',
+        'primary-strong': '#111b21',
+        'panel-header-icon': '#54656f',
       },
       backgroundImage: {
         'chat-img': "url('/assets/img/bg-chat-tile-dark_a4be512e7195b6b733d9110b408f075d.png')"

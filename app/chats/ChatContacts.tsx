@@ -1,26 +1,23 @@
-import { DBTables } from "../../enums/Tables";
-import { createClient } from "../../utils/supabase-server";
+'use client'
+
 import ChatContactsClient from "./ChatContactsClient";
+import { useContacts } from "./CurrentContactContext";
 
 export const revalidate = 0
 
-// hack to bypass typescript (temporarily)
-function asyncComponent<T, R>(fn: (arg: T) => Promise<R>): (arg: T) => R {
-    return fn as (arg: T) => R;
+export default function ChatContacts() {
+    const contactState = useContacts();
+    if (contactState) {
+        return (
+            <div className="flex flex-col">
+                <ChatContactsClient contacts={contactState.contacts} />
+            </div>
+        )
+    } else {
+        return (
+            <div>
+                Unable to fetch contacts
+            </div>
+        )
+    }
 }
-
-const ChatContacts = asyncComponent(async () => {
-    const supabase = createClient();
-    const { data: contacts , error } = await supabase
-        .from(DBTables.Contacts)
-        .select('*')
-        .order('last_message_at', { ascending: false })
-    if (error) throw error
-    return (
-        <div className="flex flex-col">
-            <ChatContactsClient contacts={contacts} />
-        </div>
-    )
-})
-
-export default ChatContacts;
