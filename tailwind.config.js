@@ -14,6 +14,8 @@ module.exports = {
       colors: {
         'background-default-hover': '#f5f6f6',
         'conversation-panel-background': '#efeae2',
+        'app-background-stripe': '#00a884',
+        'app-background': '#eae6df',
         'incoming-background': '#fff',
       },
       backgroundImage: {

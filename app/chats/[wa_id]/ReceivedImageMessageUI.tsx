@@ -1,9 +1,7 @@
 'use client'
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { createClient } from "../../../utils/supabase-browser";
-import TailIn from "../TailIn";
 
 export default function ReceivedImageMessageUI({ message }: { message: DBMessage }) {
     const [supabase] = useState(() => createClient())
@@ -20,20 +18,10 @@ export default function ReceivedImageMessageUI({ message }: { message: DBMessage
                 })
         }
     })
-    return (
-        <div>
-            <div className="inline-block">
-                <div className="inline-block h-full text-incoming-background float-left">
-                    <TailIn />
-                </div>
-                <div className="bg-incoming-background inline-block p-2 rounded-b-lg rounded-tr-lg shadow-message">
-                    {(() => {
-                        if (imageUrl) {
-                            return <img alt="Image received" width="240" className="max-w-md" src={imageUrl} />
-                        }
-                    })()}
-                </div>
-            </div>
-        </div>
-    )
+    if (imageUrl) {
+        return (
+            <img alt="Image received" width="240" className="max-w-md" src={imageUrl} />
+        )
+    }
+    return (<></>)
 }
