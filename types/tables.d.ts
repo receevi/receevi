@@ -1,6 +1,6 @@
 type DBMessage = {
     created_at: string
-    from: number
+    from_number: number
     id: number
     media_url: string | null
     message: Json

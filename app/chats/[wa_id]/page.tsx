@@ -10,7 +10,7 @@ export default async function ContactChat({ params }: { params: { wa_id: string 
     const { data: messages, error } = await supabase
         .from(DBTables.Messages)
         .select('*')
-        .eq('from', params.wa_id)
+        .eq('from_number', params.wa_id)
         .order('created_at', { ascending: true })
         if (error) throw error
     return (
