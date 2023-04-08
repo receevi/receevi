@@ -25,7 +25,7 @@ export default function MessageListClient({ messages, from }: { messages: DBMess
                 event: 'INSERT',
                 schema: 'public',
                 table: DBTables.Messages,
-                filter: `from=eq.${from}`
+                filter: `from_number=eq.${from}`
             }, payload => {
                 setMessages([...stateMessages, payload.new])
                 scrollToBottom()
