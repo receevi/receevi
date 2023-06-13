@@ -1,6 +1,7 @@
 
 export type MessageJson = {
-    from: string,
+    from?: string,
+    to?: string,
     id: string,
     timestamp: string,
     type: string,

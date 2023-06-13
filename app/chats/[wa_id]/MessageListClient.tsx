@@ -25,7 +25,7 @@ export default function MessageListClient({ messages, from }: { messages: DBMess
                 event: 'INSERT',
                 schema: 'public',
                 table: DBTables.Messages,
-                filter: `from_number=eq.${from}`
+                filter: `chat_id=eq.${from}`
             }, payload => {
                 setMessages([...stateMessages, payload.new])
                 scrollToBottom()
@@ -39,7 +39,7 @@ export default function MessageListClient({ messages, from }: { messages: DBMess
                 const messageBody = message.message as MessageJson
                 return (
                     <div className="my-1" key={message.id}>
-                        <TailWrapper showTail={index == 0}>
+                        <TailWrapper showTail={index === 0 ? true : stateMessages[index].message.from !== stateMessages[index - 1].message.from} isSent={!!messageBody.to}>
                             {
                                 (() => {
                                     switch (messageBody.type) {

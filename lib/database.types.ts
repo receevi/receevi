@@ -56,24 +56,24 @@ export interface Database {
       }
       messages: {
         Row: {
+          chat_id: number
           created_at: string
-          from_number: number
           id: number
           media_url: string | null
           message: Json
           wam_id: string
         }
         Insert: {
+          chat_id: number
           created_at?: string
-          from_number: number
           id?: number
           media_url?: string | null
           message: Json
           wam_id: string
         }
         Update: {
+          chat_id?: number
           created_at?: string
-          from_number?: number
           id?: number
           media_url?: string | null
           message?: Json
@@ -179,6 +179,7 @@ export interface Database {
           owner: string | null
           path_tokens: string[] | null
           updated_at: string | null
+          version: string | null
         }
         Insert: {
           bucket_id?: string | null
@@ -190,6 +191,7 @@ export interface Database {
           owner?: string | null
           path_tokens?: string[] | null
           updated_at?: string | null
+          version?: string | null
         }
         Update: {
           bucket_id?: string | null
@@ -201,6 +203,7 @@ export interface Database {
           owner?: string | null
           path_tokens?: string[] | null
           updated_at?: string | null
+          version?: string | null
         }
       }
     }
@@ -208,6 +211,15 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
+      can_insert_object: {
+        Args: {
+          bucketid: string
+          name: string
+          owner: string
+          metadata: Json
+        }
+        Returns: undefined
+      }
       extension: {
         Args: {
           name: string

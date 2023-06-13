@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
             .from(DBTables.Messages)
             .insert(messages.map(message => {
               return {
-                from_number: message.from,
+                chat_id: message.from,
                 message: message,
                 wam_id: message.id,
               }

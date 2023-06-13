@@ -8,6 +8,7 @@ declare global {
             NEXT_PUBLIC_SUPABASE_URL: string;
             SUPABASE_SERVICE_ROLE: string;
             WEBHOOK_VERIFY_TOKEN: string;
+            WHATSAPP_API_PHONE_NUMBER_ID: string;
         }
     }
 }
