@@ -46,6 +46,6 @@ async function sendWhatsAppMessage(to: string, message: string) {
 export async function POST(request: NextRequest) {
     const requestBody = await request.json()
     console.log('requestBody', requestBody)
-    sendWhatsAppMessage(requestBody.to, requestBody.message)
+    await sendWhatsAppMessage(requestBody.to, requestBody.message)
     return new NextResponse()
 }
