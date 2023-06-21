@@ -57,10 +57,18 @@ This project is meant to be used as whatsapp cloud api webhook receiver. This pr
 - Click on three dot icon on last deployment and click "Redeploy" to refersh environment variables
 
 ### Supabase setup
+- Create account at https://supabase.com/
+- Create a project
 - Clone this repository in your Computer
     - `git clone git@github.com:whatsapp-webhook/whatsapp-webhook.git`
 - Install supabase cli from here - https://supabase.com/docs/guides/cli
-- Link supabase account
+- Go to https://app.supabase.com/account/tokens and generate access token
+- Login into supabase cli
+    ```
+    supabase login
+    ```
+    - Paste access token in this command
+- Link supabase account (Reference Id can be found in Project Settings)
     ```bash
     supabase link --project-ref <Reference Id>
     ```
