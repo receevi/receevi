@@ -52,6 +52,7 @@ This project is meant to be used as whatsapp cloud api webhook receiver. This pr
     - `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
     - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anon key
     - `SUPABASE_SERVICE_ROLE` - Supabase service role
+    - `WHATSAPP_API_PHONE_NUMBER_ID` - Phone number id from Whatsapp Cloud API
 - Go to `Deployment`
 - Click on three dot icon on last deployment and click "Redeploy" to refersh environment variables
 
