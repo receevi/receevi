@@ -8,9 +8,23 @@ import ReceivedImageMessageUI from "./ReceivedImageMessageUI"
 import ReceivedTextMessageUI from "./ReceivedTextMessageUI"
 import TailWrapper from "./TailWrapper"
 
+type UIMessageModel = DBMessage & {
+    msgDate: string
+}
+
+function addDateToMessages(withoutDateArray: DBMessage[]): UIMessageModel[] {
+    return withoutDateArray.map((messageWithoutDate) => {
+        let withDate: UIMessageModel = {
+            ...messageWithoutDate,
+            msgDate: new Date(messageWithoutDate.created_at).toLocaleDateString()
+        }
+        return withDate;
+    })
+}
+
 export default function MessageListClient({ messages, from }: { messages: DBMessage[], from: string }) {
     const [supabase] = useState(() => createClient())
-    const [stateMessages, setMessages] = useState<DBMessage[]>(messages)
+    const [stateMessages, setMessages] = useState<UIMessageModel[]>(addDateToMessages(messages))
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const scrollToBottom = () => {
         if (messagesEndRef.current) {
@@ -27,7 +41,7 @@ export default function MessageListClient({ messages, from }: { messages: DBMess
                 table: DBTables.Messages,
                 filter: `chat_id=eq.${from}`
             }, payload => {
-                setMessages([...stateMessages, payload.new])
+                setMessages([...stateMessages, ...addDateToMessages([payload.new])])
                 scrollToBottom()
             })
             .subscribe()
@@ -37,23 +51,42 @@ export default function MessageListClient({ messages, from }: { messages: DBMess
         <div className="px-16 py-2 h-full overflow-y-auto" ref={messagesEndRef}>
             {stateMessages.map((message, index) => {
                 const messageBody = message.message as MessageJson
+                const messageDateTime = new Date(message.created_at)
                 return (
-                    <div className="my-1" key={message.id}>
-                        <TailWrapper showTail={index === 0 ? true : stateMessages[index].message.from !== stateMessages[index - 1].message.from} isSent={!!messageBody.to}>
-                            {
-                                (() => {
-                                    switch (messageBody.type) {
-                                        case "text":
-                                            return <ReceivedTextMessageUI textMessage={messageBody as TextMessage} />
-                                        case "image":
-                                            return <ReceivedImageMessageUI message={message} />
-                                        default:
-                                            return <div>Unsupported message</div>
-                                    }
-                                })()
-                            }
-                        </TailWrapper>
-                    </div>
+                    <>
+                        {
+                            (() => {
+                                if (index === 0 ? true : message.msgDate !== stateMessages[index - 1].msgDate) {
+                                    return (
+                                        <div className="flex justify-center ">
+                                            <span className="p-2 rounded-md bg-system-message-background text-system-message-text text-sm">{message.msgDate}</span>
+                                        </div>
+                                    )
+                                }
+                            })()
+                        }
+                        <div className="my-1" key={message.id}>
+                            <TailWrapper showTail={index === 0 ? true : stateMessages[index].message.from !== stateMessages[index - 1].message.from} isSent={!!messageBody.to}>
+                                <div className="px-2 pt-2 flex items-end gap-1">
+                                    <div className="pb-2 inline-block">
+                                        {
+                                            (() => {
+                                                switch (messageBody.type) {
+                                                    case "text":
+                                                        return <ReceivedTextMessageUI textMessage={messageBody as TextMessage} />
+                                                    case "image":
+                                                        return <ReceivedImageMessageUI message={message} />
+                                                    default:
+                                                        return <div>Unsupported message</div>
+                                                }
+                                            })()
+                                        }
+                                    </div>
+                                    <span className="text-xs pb-1 text-bubble-meta">{messageDateTime.toLocaleTimeString().toLowerCase()}</span>
+                                </div>
+                            </TailWrapper>
+                        </div>
+                    </>
                 )
             })}
         </div>

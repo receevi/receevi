@@ -15,7 +15,7 @@ export default function TailWrapper({ children, showTail, isSent }: { children: 
                         <div className='w-[8px] inline-block'></div>
                     )
                 }
-                <div className={`${isSent ? 'bg-outgoing-background' : 'bg-incoming-background'} inline-block p-2 rounded-b-lg  ${showTail ? isSent ? 'rounded-tl-lg' : 'rounded-tr-lg' : 'rounded-t-lg'} shadow-message`}>
+                <div className={`${isSent ? 'bg-outgoing-background' : 'bg-incoming-background'} inline-block rounded-b-lg  ${showTail ? isSent ? 'rounded-tl-lg' : 'rounded-tr-lg' : 'rounded-t-lg'} shadow-message`}>
                     {children}
                 </div>
                 {showTail && isSent ?

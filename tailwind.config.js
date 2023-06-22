@@ -22,6 +22,9 @@ module.exports = {
         'primary-strong': '#111b21',
         'panel-header-icon': '#54656f',
         'rich-text-panel-background': '#f0f2f5',
+        'bubble-meta': '#667781',
+        'system-message-background': 'hsla(0,0%,100%,0.95)',
+        'system-message-text': '#54656f',
       },
       backgroundImage: {
         'chat-img': "url('/assets/img/bg-chat-tile-dark_a4be512e7195b6b733d9110b408f075d.png')"
