@@ -10,7 +10,8 @@ This project is meant to be used as whatsapp cloud api webhook receiver. This pr
 ## Work done so far
 - Login with admin user working
 - Contacts list just like in whatsapp web
-- Text message is visible (Other messsage types are yet to be done)
+- Can receive text message
+- Can send text message (Other messsage types are yet to be done)
 ![alt text](images/message.png)
 
 ## Roadmap
@@ -109,3 +110,7 @@ This project is meant to be used as whatsapp cloud api webhook receiver. This pr
     npm run dev
     ```
 - Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+
+## Disclaimer
+This project is not affiliated with Whatsapp Inc. Whatsapp is a registered trademark of Whatsapp, Inc.
