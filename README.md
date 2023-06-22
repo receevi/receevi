@@ -12,7 +12,7 @@ This project is meant to be used as whatsapp cloud api webhook receiver. This pr
 - Contacts list just like in whatsapp web
 - Can receive text message
 - Can send text message (Other messsage types are yet to be done)
-![alt text](images/message.png)
+![alt text](images/message1.png)
 
 ## Roadmap
 - User should be able to view received all type of messages
