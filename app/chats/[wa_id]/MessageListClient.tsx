@@ -53,7 +53,7 @@ export default function MessageListClient({ messages, from }: { messages: DBMess
                 const messageBody = message.message as MessageJson
                 const messageDateTime = new Date(message.created_at)
                 return (
-                    <>
+                    <div key={message.id}>
                         {
                             (() => {
                                 if (index === 0 ? true : message.msgDate !== stateMessages[index - 1].msgDate) {
@@ -65,7 +65,7 @@ export default function MessageListClient({ messages, from }: { messages: DBMess
                                 }
                             })()
                         }
-                        <div className="my-1" key={message.id}>
+                        <div className="my-1" >
                             <TailWrapper showTail={index === 0 ? true : stateMessages[index].message.from !== stateMessages[index - 1].message.from} isSent={!!messageBody.to}>
                                 <div className="px-2 pt-2 flex items-end gap-1">
                                     <div className="pb-2 inline-block">
@@ -86,7 +86,7 @@ export default function MessageListClient({ messages, from }: { messages: DBMess
                                 </div>
                             </TailWrapper>
                         </div>
-                    </>
+                    </div>
                 )
             })}
         </div>
