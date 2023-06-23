@@ -88,7 +88,7 @@ This project is meant to be used as whatsapp cloud api webhook receiver. This pr
 - Under Webook, click Edit button
 - Add callback URL
     - URL will be Vercel's deployment + `/webhook`
-    - If your webhook deployment URL is https://whatsapp-webhook.vercel.app/ then Callback URL will be https://whatsapp-webhook.vercel.app/webhook
+    - If your webhook deployment URL is `https://whatsapp-webhook.vercel.app/` then Callback URL will be `https://whatsapp-webhook.vercel.app/webhook`
 - Add Verify token from environment variable `WEBHOOK_VERIFY_TOKEN`
 - Click Verify and save
 - Under Webhook fields click Manage
