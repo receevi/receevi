@@ -57,7 +57,8 @@ export async function downloadMedia(imageMessage: WebhookMessage) {
             .upload(`${imageMessage.from}/${imageDetails.id}.${extension}`, mediaBody, {
                 cacheControl: '3600',
                 contentType: mediaResponse.headers['content-type'],
-                upsert: false
+                upsert: false,
+                duplex: 'half',
             })
         if (error) throw error
         console.log(`media stored at ${data.path}`)
