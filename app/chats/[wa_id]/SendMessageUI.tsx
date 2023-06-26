@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from "components/ui/button";
 import { Dispatch, SetStateAction, useState } from "react";
 
 type SendMessageUIProps = {
@@ -15,7 +16,7 @@ export default function SendMessageUI({ message, setMessage, onMessageSend }: Se
             onMessageSend(message)
         }}>
             <input value={message} onChange={e => setMessage(e.target.value)} className="w-full p-2 rounded-md" placeholder="Type a message" />
-            <button type="submit">Send</button>
+            <Button type="submit">Send</Button>
         </form>
     )
 }
