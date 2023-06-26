@@ -69,6 +69,7 @@ export async function POST(request: NextRequest) {
                 chat_id: message.from,
                 message: message,
                 wam_id: message.id,
+                created_at: new Date(Number.parseInt(message.timestamp) * 1000)
               }
             }))
           if (error) throw error
