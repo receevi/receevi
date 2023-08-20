@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { DBTables } from "../../../enums/Tables";
-import { createServiceClient } from "../../../lib/supabase/service-client";
+import { DBTables } from "@/lib/enums/Tables";
+import { createServiceClient } from "@/lib/supabase/service-client";
 
 async function sendWhatsAppMessage(to: string, message: string) {
     const WHATSAPP_API_URL = `https://graph.facebook.com/v13.0/${process.env.WHATSAPP_API_PHONE_NUMBER_ID}/messages`;

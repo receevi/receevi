@@ -37,18 +37,21 @@ export interface Database {
       contacts: {
         Row: {
           created_at: string | null
+          in_chat: boolean
           last_message_at: string | null
           profile_name: string | null
           wa_id: number
         }
         Insert: {
           created_at?: string | null
+          in_chat?: boolean
           last_message_at?: string | null
           profile_name?: string | null
           wa_id: number
         }
         Update: {
           created_at?: string | null
+          in_chat?: boolean
           last_message_at?: string | null
           profile_name?: string | null
           wa_id?: number

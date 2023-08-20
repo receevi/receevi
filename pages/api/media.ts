@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { WritableStream } from "stream/web";
-import { httpsGet } from "../../lib/httpsGet";
-import { getUserDataFromRequest } from "../../lib/userdata";
+import { httpsGet } from "@/lib/httpsGet";
+import { getUserDataFromRequest } from "@/lib/userdata";
 import { MediaResponse } from "../../types/MediaResponse";
 
 export default async function handler(

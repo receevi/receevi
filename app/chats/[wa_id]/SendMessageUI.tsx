@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Dispatch, SetStateAction, useState } from "react";
 
 type SendMessageUIProps = {

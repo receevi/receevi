@@ -4,6 +4,7 @@ import SupabaseListener from '../components/supabase-listener'
 import SupabaseProvider from '../components/supabase-provider'
 import { createClient } from '../utils/supabase-server'
 import './globals.css'
+import NextTopLoader from 'nextjs-toploader';
 
 // do not cache this layout
 export const revalidate = 0
@@ -26,6 +27,7 @@ export default async function RootLayout({
         <link rel="icon" href="/favicon.ico" />
       </head>
       <body>
+        <NextTopLoader color="#000"/>
         <SupabaseProvider>
           <SupabaseListener serverAccessToken={session?.access_token} />
           {children}

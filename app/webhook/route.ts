@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { verifyWebhook } from '../../lib/verify';
+import { verifyWebhook } from '@/lib/verify';
 import { WebHookRequest } from '../../types/webhook';
-import { createServiceClient } from '../../lib/supabase/service-client';
-import { DBTables } from '../../enums/Tables';
+import { createServiceClient } from '@/lib/supabase/service-client';
+import { DBTables } from '@/lib/enums/Tables';
 import { downloadMedia } from './media';
 
 export const revalidate = 0
