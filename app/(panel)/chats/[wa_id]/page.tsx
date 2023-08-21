@@ -1,5 +1,5 @@
 import { DBTables } from "@/lib/enums/Tables";
-import { createClient } from "../../../utils/supabase-server";
+import { createClient } from "@/utils/supabase-server";
 import ChatHeader from "./ChatHeader";
 import MessageListClient from "./MessageListClient";
 import SendMessageWrapper from "./SendMessageWrapper";

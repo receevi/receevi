@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { DBTables } from "@/lib/enums/Tables";
-import { Contact } from "../../types/contact";
-import { createClient } from "../../utils/supabase-browser";
+import { Contact } from "../../../types/contact";
+import { createClient } from "@/utils/supabase-browser";
 import ContactUI from "./ContactUI";
 
 export default function ChatContactsClient({ contacts }: { contacts: Contact[] }) {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import { createClient } from "../../../utils/supabase-browser";
+import { createClient } from "@/utils/supabase-browser";
 
 export default function ReceivedImageMessageUI({ message }: { message: DBMessage }) {
     const [supabase] = useState(() => createClient())

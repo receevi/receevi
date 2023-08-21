@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, Dispatch, ReactElement, Reducer, useContext, useReducer } from "react";
-import { Contact } from "../../types/contact";
+import { Contact } from "../../../types/contact";
 
 type ContactState = {
     contacts: Contact[],

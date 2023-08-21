@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Contact } from "../../types/contact";
+import { Contact } from "../../../types/contact";
 import BlankUser from "./BlankUser";
 import { UPDATE_CURRENT_CONTACT, useCurrentContactDispatch } from "./CurrentContactContext";
 
