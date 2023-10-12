@@ -1,8 +1,7 @@
 "use client"
 
 import {
-    ColumnDef,
-    ColumnFiltersState, getCoreRowModel,
+    ColumnDef, getCoreRowModel,
     getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel, PaginationState, SortingState, useReactTable, VisibilityState
@@ -21,12 +20,12 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { useQuery } from '@tanstack/react-query'
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { Contact } from "../../../types/contact"
+import Loading from "../../loading"
 import { AddContactDialog } from "./AddContactDialog"
 import { ContactsTable } from "./ContactsTable"
 import { fetchData, itemsPerPage } from "./fetchData"
-import Loading from "../../loading"
 
 export default function ContactsClient() {
     const columns = useMemo<ColumnDef<Contact>[]>(
@@ -92,10 +91,12 @@ export default function ContactsClient() {
             pageIndex: 0,
             pageSize: itemsPerPage,
         })
+    const [ searchFilter, setSearchFilter ] = useState("")
 
     const fetchDataOptions = {
         pageIndex,
         pageSize,
+        searchFilter
     }
 
     const dataQuery = useQuery(
@@ -114,9 +115,6 @@ export default function ContactsClient() {
     )
 
     const [sorting, setSorting] = React.useState<SortingState>([])
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-        []
-    )
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = React.useState({})
@@ -127,7 +125,6 @@ export default function ContactsClient() {
         manualPagination: true,
         pageCount: dataQuery.data?.pageCount ?? -1,
         onSortingChange: setSorting,
-        onColumnFiltersChange: setColumnFilters,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
@@ -137,7 +134,6 @@ export default function ContactsClient() {
         onPaginationChange: setPagination,
         state: {
             sorting,
-            columnFilters,
             columnVisibility,
             rowSelection,
             pagination,
@@ -149,10 +145,8 @@ export default function ContactsClient() {
             <div className="flex items-center py-4">
                 <Input
                     placeholder="Search name..."
-                    value={(table.getColumn("profile_name")?.getFilterValue() as string) ?? ""}
-                    onChange={(event) =>
-                        table.getColumn("profile_name")?.setFilterValue(event.target.value)
-                    }
+                    value={searchFilter}
+                    onChange={(event) => setSearchFilter(event.target.value) }
                     className="max-w-sm"
                 />
                 <AddContactDialog onSuccessfulAdd={dataQuery.refetch}>

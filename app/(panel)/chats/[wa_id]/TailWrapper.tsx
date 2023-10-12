@@ -4,7 +4,7 @@ import TailIn from '../TailIn'
 export default function TailWrapper({ children, showTail, isSent }: { children: ReactElement, showTail: boolean, isSent: boolean }) {
     return (
         <div className={`flex ${isSent ? 'justify-end' : 'justify-start'}`}>
-            <div className="inline-block">
+            <div className="flex">
                 {showTail && !isSent ?
                     (
                         <div className={`inline-block h-full ${isSent ? 'text-outgoing-background' : 'text-incoming-background'} float-left`}>

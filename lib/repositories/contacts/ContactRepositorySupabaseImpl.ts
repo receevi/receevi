@@ -1,7 +1,7 @@
 import { DBTables } from "@/lib/enums/Tables";
 import { createClient as createBrowserClient } from "@/utils/supabase-browser";
 import { Contact } from "../../../types/contact";
-import { ContactColumnName, ContactRepository } from "./ContactRepository";
+import { ContactColumnName, ContactFilterArray, ContactRepository } from "./ContactRepository";
 
 type SupabaseClientType = ReturnType<typeof createBrowserClient>
 
@@ -11,7 +11,7 @@ export class ContactRepositorySupabaseImpl implements ContactRepository {
         this.client = client;
     }
     async getContacts(
-        filters?: Map<ContactColumnName, unknown>,
+        filters?: ContactFilterArray,
         order?: {
             column: ContactColumnName,
             options?: { ascending?: boolean; nullsFirst?: boolean; foreignTable?: undefined }
@@ -27,8 +27,8 @@ export class ContactRepositorySupabaseImpl implements ContactRepository {
             .from(DBTables.Contacts)
             .select('*', selectOptions)
         if (filters) {
-            for (const [key, value] of filters) {
-                query = query.eq(key, value)
+            for (const filter of filters) {
+                query = query.filter(filter.column, filter.operator, filter.value)
             }
         }
         if (order) {
@@ -47,17 +47,17 @@ export class ContactRepositorySupabaseImpl implements ContactRepository {
         }
     }
 
-    async getTotalNumberOfContacts(filters?: Map<ContactColumnName, unknown>): Promise<number | null> {
-        let query = this.client
-            .from(DBTables.Contacts)
-            .select('wa_id', { count: 'exact', head: true })
-        if (filters) {
-            for (const [key, value] of filters) {
-                query = query.eq(key, value)
-            }
-        }
-        const result = await query
-        if (result.error) throw result.error
-        return result.count
+    async getTotalNumberOfContacts(filters?: ContactFilterArray): Promise<number | null> {
+        // let query = this.client
+        //     .from(DBTables.Contacts)
+        //     .select('wa_id', { count: 'exact', head: true })
+        // if (filters) {
+        //     for (const [key, value] of filters) {
+        //         query = query.eq(key, value)
+        //     }
+        // }
+        // const result = await query
+        // if (result.error) throw result.error
+        return 0
     }
 }

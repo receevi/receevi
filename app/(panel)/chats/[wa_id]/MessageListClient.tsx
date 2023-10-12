@@ -67,7 +67,7 @@ export default function MessageListClient({ messages, from }: { messages: DBMess
                         }
                         <div className="my-1" >
                             <TailWrapper showTail={index === 0 ? true : stateMessages[index].message.from !== stateMessages[index - 1].message.from} isSent={!!messageBody.to}>
-                                <div className="px-2 pt-2 flex items-end gap-1">
+                                <div className="px-2 pt-2 flex flex-col items-end gap-1 relative">
                                     <div className="pb-2 inline-block">
                                         {
                                             (() => {
@@ -81,8 +81,9 @@ export default function MessageListClient({ messages, from }: { messages: DBMess
                                                 }
                                             })()
                                         }
+                                        <span className="invisible">ww:ww wm</span>
                                     </div>
-                                    <span className="text-xs pb-1 text-bubble-meta">{messageDateTime.toLocaleTimeString().toLowerCase()}</span>
+                                    <span className="text-xs pb-2 pe-2 text-bubble-meta absolute bottom-0 end-0">{messageDateTime.toLocaleTimeString().toLowerCase()}</span>
                                 </div>
                             </TailWrapper>
                         </div>
