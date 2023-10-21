@@ -56,7 +56,8 @@ export async function POST(request: NextRequest) {
               .upsert({
                 wa_id: contact.wa_id,
                 profile_name: contact.profile.name,
-                last_message_at: new Date()
+                last_message_at: new Date(),
+                in_chat: true,
               })
             if (error) throw error
           }
