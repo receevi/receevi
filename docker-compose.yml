@@ -1,0 +1,7 @@
+version : “3”
+services :
+  receevi:
+    build: .
+    ports:
+      - 3000:3000
+    env_file: .env
