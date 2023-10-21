@@ -110,7 +110,7 @@ This project is meant to be used as whatsapp cloud api webhook receiver. This pr
 
 ## Running locally
 
-- Copy `.env.local.example` into `.env.local`
+- Copy `.env.example` into `.env.local`
 - Fill all environment variables in `.env.local`
 - Run the development server:
     ```bash
