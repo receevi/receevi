@@ -6,7 +6,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { Contact } from "../../../types/contact"
+import { Contact } from "@/types/contact"
 import { flexRender, Table as TanTable } from "@tanstack/react-table"
 
 export function ContactsTable({ table, totalColumns }: { table: TanTable<Contact>, totalColumns: number }): JSX.Element {

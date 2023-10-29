@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { DBTables } from "@/lib/enums/Tables"
-import { MessageJson, TextMessage } from "../../../../types/Message"
+import { MessageJson, TextMessage } from "@/types/Message"
 import { createClient } from "@/utils/supabase-browser"
 import ReceivedImageMessageUI from "./ReceivedImageMessageUI"
 import ReceivedTextMessageUI from "./ReceivedTextMessageUI"

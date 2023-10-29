@@ -5,7 +5,7 @@ export default async function LoginWrapper({ children }: { children: React.React
     const supabase = createClient()
     const session = await supabase.auth.getSession()
     if (session.data.session) {
-        redirect('/chats')
+        redirect('/post-login')
     } else {
         return (
             <>

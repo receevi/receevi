@@ -3,7 +3,7 @@ export type Json =
   | number
   | boolean
   | null
-  | { [key: string]: Json }
+  | { [key: string]: Json | undefined }
   | Json[]
 
 export interface Database {
@@ -56,6 +56,43 @@ export interface Database {
           profile_name?: string | null
           wa_id?: number
         }
+        Relationships: []
+      }
+      message_template: {
+        Row: {
+          category: string | null
+          components: Json | null
+          created_at: string | null
+          id: string
+          language: string | null
+          name: string | null
+          previous_category: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          components?: Json | null
+          created_at?: string | null
+          id: string
+          language?: string | null
+          name?: string | null
+          previous_category?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          components?: Json | null
+          created_at?: string | null
+          id?: string
+          language?: string | null
+          name?: string | null
+          previous_category?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       messages: {
         Row: {
@@ -82,6 +119,37 @@ export interface Database {
           message?: Json
           wam_id?: string
         }
+        Relationships: []
+      }
+      setup: {
+        Row: {
+          created_at: string | null
+          display_text: string | null
+          done_at: string | null
+          id: string
+          in_progress: boolean
+          name: string | null
+          sequence: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          display_text?: string | null
+          done_at?: string | null
+          id?: string
+          in_progress?: boolean
+          name?: string | null
+          sequence?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          display_text?: string | null
+          done_at?: string | null
+          id?: string
+          in_progress?: boolean
+          name?: string | null
+          sequence?: number | null
+        }
+        Relationships: []
       }
       webhook: {
         Row: {
@@ -99,6 +167,7 @@ export interface Database {
           id?: number
           payload?: Json | null
         }
+        Relationships: []
       }
     }
     Views: {
@@ -150,6 +219,14 @@ export interface Database {
           public?: boolean | null
           updated_at?: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "buckets_owner_fkey"
+            columns: ["owner"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       migrations: {
         Row: {
@@ -170,6 +247,7 @@ export interface Database {
           id?: number
           name?: string
         }
+        Relationships: []
       }
       objects: {
         Row: {
@@ -208,6 +286,14 @@ export interface Database {
           updated_at?: string | null
           version?: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "objects_bucketId_fkey"
+            columns: ["bucket_id"]
+            referencedRelation: "buckets"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: {
@@ -239,7 +325,7 @@ export interface Database {
         Args: {
           name: string
         }
-        Returns: string[]
+        Returns: unknown
       }
       get_size_by_bucket: {
         Args: Record<PropertyKey, never>
