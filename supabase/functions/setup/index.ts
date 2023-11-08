@@ -1,60 +1,8 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { serve } from "deno-server"
+import { createClient } from 'supabase-js'
 import { corsHeaders } from '../_shared/cors.ts'
-
-async function downloadMessageTemplates(supabase) {
-  const whatsappBusinessAccountId = Deno.env.get('WHATSAPP_BUSINESS_ACCOUNT_ID')
-  if (!whatsappBusinessAccountId) throw new Error("WHATSAPP_BUSINESS_ACCOUNT_ID environment variable is not set")
-
-  let token = Deno.env.get('WHATSAPP_ACCESS_TOKEN')
-  const fetchLimit = 10
-  let next = `https://graph.facebook.com/v17.0/${whatsappBusinessAccountId}/message_templates?limit=${fetchLimit}`;
-  while (next) {
-    console.log(`Fetch url: ${next}`)
-    const response = await fetch(next, {
-      headers: {
-        'authorization': `Bearer ${token}`
-      }
-    })
-    const jsonResponse = await response.json()
-    const databaseInput = jsonResponse.data.map(remoteData => {
-      const { id, name, category, previous_category, status, language, components, ...rest } = remoteData
-      const restOfTheKeys = Object.keys(rest)
-      if (restOfTheKeys.length > 0) {
-        console.warn("There are new columns from facebook console", Object.keys(rest))
-      }
-      return {
-        id: id,
-        name: name,
-        category: category,
-        previous_category: previous_category,
-        status: status,
-        language: language,
-        components: components,
-        updated_at: new Date(),
-      }
-    })
-    const { data, error } = await supabase
-      .from('message_template')
-      .upsert(databaseInput)
-    if (error) throw error
-    next = jsonResponse.paging.next
-  }
-}
-
-async function downloadMessageTemplateWrapper(supabase) {
-  const { data1, error1 } = await supabase
-    .from('setup')
-    .update({ in_progress: true })
-    .eq('name', 'download_message_templates')
-  if (error1) throw error1
-  await downloadMessageTemplates(supabase)
-  const { data2, error2 } = await supabase
-    .from('setup')
-    .update({ in_progress: false, done_at: new Date() })
-    .eq('name', 'download_message_templates')
-  if (error2) throw error2
-}
+import { Response } from "https://esm.sh/v133/@supabase/node-fetch@2.6.14/denonext/node-fetch.mjs";
+import { MessageTemplateSetup } from "./message_template.ts";
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -76,7 +24,9 @@ serve(async (req) => {
       return new Response('', { status: 401, headers: corsHeaders })
     }
 
-    await downloadMessageTemplateWrapper(supabase);
+    const messageTemplaetSetup = new MessageTemplateSetup(supabase);
+    await messageTemplaetSetup.execute();
+
     success = true
   } catch (e) {
     console.error(e)
