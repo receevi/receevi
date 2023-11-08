@@ -21,8 +21,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from "react"
-import { Contact } from "../../../types/contact"
-import Loading from "../../loading"
+import { Contact } from "@/types/contact"
+import Loading from "../../../loading"
 import { AddContactDialog } from "./AddContactDialog"
 import { ContactsTable } from "./ContactsTable"
 import { fetchData, itemsPerPage } from "./fetchData"

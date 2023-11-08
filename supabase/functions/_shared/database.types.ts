@@ -79,7 +79,7 @@ export interface Database {
           name?: string | null
           previous_category?: string | null
           status?: string | null
-          updated_at?: string | null
+          updated_at?: string | null | Date
         }
         Update: {
           category?: string | null
@@ -90,7 +90,7 @@ export interface Database {
           name?: string | null
           previous_category?: string | null
           status?: string | null
-          updated_at?: string | null
+          updated_at?: string | null | Date
         }
         Relationships: []
       }
@@ -134,7 +134,7 @@ export interface Database {
         Insert: {
           created_at?: string | null
           display_text?: string | null
-          done_at?: string | null
+          done_at?: string | null | Date
           id?: string
           in_progress?: boolean
           name?: string | null
@@ -143,7 +143,7 @@ export interface Database {
         Update: {
           created_at?: string | null
           display_text?: string | null
-          done_at?: string | null
+          done_at?: string | null | Date
           id?: string
           in_progress?: boolean
           name?: string | null
