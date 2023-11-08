@@ -31,12 +31,12 @@ This project is meant to be used as whatsapp cloud api webhook receiver. This pr
     - Go to App settings > Basic
     - Get `App secret`
 
-- Phone number ID
+- Phone number ID and WhatsApp Business Account ID
     - Go to https://developers.facebook.com/apps/
     - Choose your app
     - Go to WhatsApp > API Setup
-    - Get `App secret`
     - Copy "Phone number ID"
+    - Copy "WhatsApp Business Account ID"
 
 - Supabase account
     - Create an account and a project on https://supabase.com/
@@ -61,6 +61,7 @@ This project is meant to be used as whatsapp cloud api webhook receiver. This pr
     - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anon key
     - `SUPABASE_SERVICE_ROLE` - Supabase service role
     - `WHATSAPP_API_PHONE_NUMBER_ID` - Phone number ID
+    - `WHATSAPP_BUSINESS_ACCOUNT_ID` - WhatsApp Business Account ID
 - Go to `Deployment`
 - Click on three dot icon on last deployment and click "Redeploy" to refersh environment variables
 
@@ -85,8 +86,18 @@ This project is meant to be used as whatsapp cloud api webhook receiver. This pr
     ```bash
     supabase db push
     ```
+- Create database schema
+    ```bash
+    supabase functions deploy
+    ```
 - Go to Supabase > Authentication > Add user > Create New User
 - Enter email address and new password to create a user
+- Go to Supabase > Project Settings > Edge Functions
+- Add 2 new secrets
+    - Secret name: `WHATSAPP_ACCESS_TOKEN`
+    - Value: Whatsapp webhook verify token you generated in prerequisites
+    - Secret name: `WHATSAPP_BUSINESS_ACCOUNT_ID`
+    - Value: WhatsApp Business Account ID taken from developer console
 
 ### Whatsapp setup
 - Go to https://developers.facebook.com/apps/
