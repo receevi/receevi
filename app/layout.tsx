@@ -22,7 +22,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <head>
-        <title>Whatsapp Webhook</title>
+        <title>Receevi</title>
         <meta name="description" content="Whatsapp Cloud API Webhook" />
         <link rel="icon" href="/favicon.ico" />
       </head>

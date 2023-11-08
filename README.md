@@ -1,7 +1,7 @@
-# Whatsapp Webhook
+# Receevi - The Open Source WhatsApp Business Solution
 
 ## Shape project future with Your Feedback
-Help us improve our open-source "WhatsApp Webhook" project! Share your thoughts and suggestions in our community discussion: [Click here](https://github.com/whatsapp-webhook/whatsapp-webhook/discussions/2)
+Help us improve our open-source "Receevi" project! Share your thoughts and suggestions in our community discussion: [Click here](https://github.com/receevi/receevi/discussions/3)
 
 ## * IN PROGRESS *
 
@@ -49,7 +49,7 @@ This project is meant to be used as whatsapp cloud api webhook receiver. This pr
     - `openssl rand -hex 32`
 
 ### Vercel setup
-- [Deploy to vercel](https://vercel.com/new/git/external?repository-url=https://github.com/whatsapp-webhook/whatsapp-webhook&project-name=whatsapp-webhook&repository-name=whatsapp-webhook)
+- [Deploy to vercel](https://vercel.com/new/git/external?repository-url=https://github.com/receevi/receevi&project-name=receevi&repository-name=receevi)
 - Wait till build is finishd and hit Continue to dashbaoard
 - Go to Settings > Environment variables
 - Add following environment variables
@@ -69,7 +69,7 @@ This project is meant to be used as whatsapp cloud api webhook receiver. This pr
 - Create account at https://supabase.com/
 - Create a project
 - Clone this repository in your Computer
-    - `git clone git@github.com:whatsapp-webhook/whatsapp-webhook.git`
+    - `git clone https://github.com/receevi/receevi.git`
 - Install supabase cli from here - https://supabase.com/docs/guides/cli
 - Go to https://app.supabase.com/account/tokens and generate access token
 - Login into supabase cli
@@ -106,7 +106,7 @@ This project is meant to be used as whatsapp cloud api webhook receiver. This pr
 - Under Webook, click Edit button
 - Add callback URL
     - URL will be Vercel's deployment + `/webhook`
-    - If your webhook deployment URL is `https://whatsapp-webhook.vercel.app/` then Callback URL will be `https://whatsapp-webhook.vercel.app/webhook`
+    - If your webhook deployment URL is `https://some-project.vercel.app/` then Callback URL will be `https://some-project.vercel.app/webhook`
 - Add Verify token from environment variable `WEBHOOK_VERIFY_TOKEN`
 - Click Verify and save
 - Under Webhook fields click Manage
