@@ -19,7 +19,7 @@ import {
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from "react"
 import { Contact } from "@/types/contact"
 import Loading from "../../../loading"
@@ -99,11 +99,11 @@ export default function ContactsClient() {
         searchFilter
     }
 
-    const dataQuery = useQuery(
-        ['data', fetchDataOptions],
-        () => fetchData(fetchDataOptions),
-        { keepPreviousData: true }
-    )
+    const dataQuery = useQuery({
+        queryKey: ['data', fetchDataOptions],
+        queryFn: () => fetchData(fetchDataOptions),
+        placeholderData: keepPreviousData
+    })
     const defaultData = React.useMemo(() => [], [])
 
     const pagination = React.useMemo(

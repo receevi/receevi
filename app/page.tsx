@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '../utils/supabase-server'
+import { createClient } from '@/utils/supabase-server'
 import constants from '@/lib/constants'
 
 export default async function Home() {
