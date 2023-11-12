@@ -58,6 +58,7 @@ export interface Database {
           in_chat: boolean
           last_message_at: string | null
           profile_name: string | null
+          tags: string[] | null
           wa_id: number
         }
         Insert: {
@@ -65,6 +66,7 @@ export interface Database {
           in_chat?: boolean
           last_message_at?: string | null
           profile_name?: string | null
+          tags?: string[] | null
           wa_id: number
         }
         Update: {
@@ -72,6 +74,7 @@ export interface Database {
           in_chat?: boolean
           last_message_at?: string | null
           profile_name?: string | null
+          tags?: string[] | null
           wa_id?: number
         }
         Relationships: []
