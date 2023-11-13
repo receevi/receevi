@@ -34,6 +34,87 @@ export interface Database {
   }
   public: {
     Tables: {
+      broadcast: {
+        Row: {
+          contact_tags: string[] | null
+          created_at: string
+          delivered_count: number
+          id: string
+          language: string
+          name: string
+          read_count: number
+          replied_count: number
+          scheduled_count: number | null
+          sent_count: number
+          template_name: string
+        }
+        Insert: {
+          contact_tags?: string[] | null
+          created_at?: string
+          delivered_count?: number
+          id?: string
+          language: string
+          name: string
+          read_count?: number
+          replied_count?: number
+          scheduled_count?: number | null
+          sent_count?: number
+          template_name: string
+        }
+        Update: {
+          contact_tags?: string[] | null
+          created_at?: string
+          delivered_count?: number
+          id?: string
+          language?: string
+          name?: string
+          read_count?: number
+          replied_count?: number
+          scheduled_count?: number | null
+          sent_count?: number
+          template_name?: string
+        }
+        Relationships: []
+      }
+      broadcast_contact: {
+        Row: {
+          batch_id: string
+          broadcast_id: string
+          contact_id: number
+          created_at: string
+          delivered_at: string | null
+          id: string
+          read_at: string | null
+          replied_at: string | null
+          sent_at: string | null
+          wam_id: string | null
+        }
+        Insert: {
+          batch_id: string
+          broadcast_id: string
+          contact_id: number
+          created_at?: string
+          delivered_at?: string | null
+          id?: string
+          read_at?: string | null
+          replied_at?: string | null
+          sent_at?: string | null | Date
+          wam_id?: string | null
+        }
+        Update: {
+          batch_id?: string
+          broadcast_id?: string
+          contact_id?: number
+          created_at?: string
+          delivered_at?: string | null
+          id?: string
+          read_at?: string | null
+          replied_at?: string | null
+          sent_at?: string | null | Date
+          wam_id?: string | null
+        }
+        Relationships: []
+      }
       contact_tag: {
         Row: {
           created_at: string

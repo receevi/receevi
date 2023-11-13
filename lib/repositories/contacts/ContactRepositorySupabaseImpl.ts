@@ -1,7 +1,7 @@
 import { DBTables } from "@/lib/enums/Tables";
 import { createClient as createBrowserClient } from "@/utils/supabase-browser";
 import { Contact } from "../../../types/contact";
-import { ContactColumnName, ContactFilterArray, ContactRepository } from "./ContactRepository";
+import { ContactColumnName, ContactFilterArray, ContactFromDB, ContactRepository } from "./ContactRepository";
 
 type SupabaseClientType = ReturnType<typeof createBrowserClient>
 
@@ -47,17 +47,12 @@ export class ContactRepositorySupabaseImpl implements ContactRepository {
         }
     }
 
-    async getTotalNumberOfContacts(filters?: ContactFilterArray): Promise<number | null> {
-        // let query = this.client
-        //     .from(DBTables.Contacts)
-        //     .select('wa_id', { count: 'exact', head: true })
-        // if (filters) {
-        //     for (const [key, value] of filters) {
-        //         query = query.eq(key, value)
-        //     }
-        // }
-        // const result = await query
-        // if (result.error) throw result.error
-        return 0
+    async getContactsHavingTag(tags: string[]): Promise<ContactFromDB[]> {
+        const { data, error } = await this.client
+            .from('contacts')
+            .select('*')
+            .overlaps('tags', tags)
+        if (error) throw error
+        return data
     }
 }

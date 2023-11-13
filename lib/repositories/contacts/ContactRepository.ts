@@ -25,8 +25,8 @@ type FilterOperator =
   | 'phfts'
   | 'wfts'
 
-export type ContactFromDB = Database['public']['Tables']['contacts'];
-export type ContactColumnName = string & keyof ContactFromDB['Row'];
+export type ContactFromDB = Database['public']['Tables']['contacts']['Row'];
+export type ContactColumnName = string & keyof ContactFromDB;
 export type ContactFilterArray = Array<{ column: ContactColumnName, operator: FilterOperator, value: unknown}>
 
 export interface ContactRepository {
@@ -40,6 +40,6 @@ export interface ContactRepository {
         fetchCount?: boolean,
     ): Promise<{ rows: Contact[], itemsCount: number | null }>
 
-    getTotalNumberOfContacts(filters?: ContactFilterArray): Promise<number | null>
+    getContactsHavingTag(tags: string[]): Promise<ContactFromDB[]>
 }
 
