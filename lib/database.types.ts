@@ -76,6 +76,39 @@ export interface Database {
         }
         Relationships: []
       }
+      broadcast_batch: {
+        Row: {
+          broadcast_id: string
+          created_at: string
+          ended_at: string | null
+          id: string
+          scheduled_count: number
+          sent_count: number
+          started_at: string | null
+          status: string | null
+        }
+        Insert: {
+          broadcast_id: string
+          created_at?: string
+          ended_at?: string | null
+          id: string
+          scheduled_count: number
+          sent_count?: number
+          started_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          broadcast_id?: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          scheduled_count?: number
+          sent_count?: number
+          started_at?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
       broadcast_contact: {
         Row: {
           batch_id: string
@@ -276,7 +309,19 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      add_sent_count_to_broadcast: {
+        Args: {
+          b_id: string
+          sent_count_to_be_added: number
+        }
+        Returns: undefined
+      }
+      pick_next_broadcast_batch: {
+        Args: {
+          b_id: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

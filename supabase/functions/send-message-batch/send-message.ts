@@ -55,6 +55,7 @@ export async function sendTemplateMessage(templateName: string, language: string
 }
 
 export async function sendTemplateMessageDummy(templateName: string, language: string, contact_id: string): Promise<SendMessageResponse> {
+    console.log(`sendTemplateMessageDummy: templateName: ${templateName}, language: ${language}, contact_id: ${contact_id}`)
     await new Promise((resolve) => setTimeout(resolve, 500))
     return {
         messaging_product: 'whatsapp',

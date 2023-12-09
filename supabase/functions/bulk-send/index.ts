@@ -1,7 +1,7 @@
 import { serve } from "deno-server";
 import { Response } from "https://esm.sh/v133/@supabase/node-fetch@2.6.14/denonext/node-fetch.mjs";
 import { SupabaseClientType, createSupabaseClient } from "../_shared/client.ts";
-import { PROCESSING_LIMIT } from "../_shared/constants.ts";
+import { PARALLEL_BATCH_COUNT, PROCESSING_LIMIT } from "../_shared/constants.ts";
 import { corsHeaders } from '../_shared/cors.ts';
 
 type BulkSendRequest = {
@@ -38,11 +38,17 @@ async function markContactsForSend(supabase: SupabaseClientType, broadcastId: st
       .from('broadcast_contact')
       .insert(broadcastContacts)
     batches.push(batchId)
+    const { error: errorBatchInsert } = await supabase.from('broadcast_batch').insert({
+      'id': batchId,
+      'broadcast_id': broadcastId,
+      'scheduled_count': contacts.length,
+    })
+    if (errorBatchInsert) throw errorBatchInsert
     lastFetchedCount = contacts.length
     scheduledCount += contacts.length
     from = from + PROCESSING_LIMIT
   } while (lastFetchedCount == PROCESSING_LIMIT)
-  return { scheduledCount, batches}
+  return { scheduledCount, batches }
 }
 
 serve(async (req) => {
@@ -84,16 +90,14 @@ serve(async (req) => {
     .eq('id', broadcastId)
   if (errorUpdateBroadcastSC) throw errorUpdateBroadcastSC
 
-  for (const batchId of contactsMarkedForSent.batches) {
+  for (let i = 0; i < Math.min(PARALLEL_BATCH_COUNT, contactsMarkedForSent.batches.length); i++) {
     supabase.functions.invoke('send-message-batch', {
       body: {
-        batchId: batchId,
         broadcast: broadcast[0]
       }
     })
-    console.log(`BroadcastId: ${broadcastId} - ${batchId} invoked`)
   }
-  console.log(`BroadcastId: ${broadcastId} - All batches invoked`)
+  console.log(`BroadcastId: ${broadcastId} - ${PARALLEL_BATCH_COUNT} workers invoked`)
 
   return new Response(
     '{"success": true"}',
