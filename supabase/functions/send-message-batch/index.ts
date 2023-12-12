@@ -45,20 +45,26 @@ async function sendMessages(supabase: SupabaseClientType, broadcast: Broadcast, 
     if (error) throw error
     console.log(`BroadcastId: ${broadcast.id} - BatchId: ${batchId} - Send batch messages started`)
     let contactsGroup = []
-    for (const contact of contacts) {
+    for (const [idx, contact] of contacts.entries()) {
         if (contactsGroup.length < PARALLEL_SEND_MESSAGE_COUNT) {
             console.log(`sendMessages: ${contact.contact_id} appending group`)
             contactsGroup.push(contact)
         }
-        if (contactsGroup.length >= PARALLEL_SEND_MESSAGE_COUNT) {
+        if (contactsGroup.length >= PARALLEL_SEND_MESSAGE_COUNT || idx == contacts.length - 1) {
             console.log(`Sending messages parallelly to: ${contactsGroup.map(c => c.contact_id)}`)
             const contactSendPromises = []
             for (const contactToSend of contactsGroup) {
                 contactSendPromises.push(sendMessageAndUpdateMessageId(supabase, broadcast, contactToSend))
             }
             const results = await Promise.all(contactSendPromises)
-            const { error: countUpdateError } = await supabase.rpc('add_sent_count_to_broadcast', { sent_count_to_be_added: results.filter(r => r).length, b_id: broadcast.id })
-            console.error(`Error while updating count for broadcast: ${broadcast.id}`, countUpdateError)
+            const argsToUpdateCount = {
+                sent_count_to_be_added: results.filter(r => r).length,
+                b_id: broadcast.id
+            }
+            const { error: countUpdateError } = await supabase.rpc('add_sent_count_to_broadcast', argsToUpdateCount)
+            if (countUpdateError) {
+                console.error(`Error while updating count for broadcast: ${broadcast.id}, ${argsToUpdateCount.sent_count_to_be_added}`, countUpdateError)
+            }
             contactsGroup = []
         }
     }
