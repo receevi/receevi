@@ -45,7 +45,7 @@ BEGIN
   SELECT id INTO batch_id
   FROM broadcast_batch
   WHERE broadcast_id = b_id and status is null
-  LIMIT 1;
+  LIMIT 1 FOR UPDATE;
 
   -- Update status to "PICKED"
   UPDATE broadcast_batch
