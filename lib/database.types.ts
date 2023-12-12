@@ -90,21 +90,21 @@ export interface Database {
         Insert: {
           broadcast_id: string
           created_at?: string
-          ended_at?: string | null
+          ended_at?: string | null | Date
           id: string
           scheduled_count: number
           sent_count?: number
-          started_at?: string | null
+          started_at?: string | null | Date
           status?: string | null
         }
         Update: {
           broadcast_id?: string
           created_at?: string
-          ended_at?: string | null
+          ended_at?: string | null | Date
           id?: string
           scheduled_count?: number
           sent_count?: number
-          started_at?: string | null
+          started_at?: string | null | Date
           status?: string | null
         }
         Relationships: []
