@@ -233,25 +233,34 @@ export interface Database {
         Row: {
           chat_id: number
           created_at: string
+          delivered_at: string | null
           id: number
           media_url: string | null
           message: Json
+          read_at: string | null
+          sent_at: string | null
           wam_id: string
         }
         Insert: {
           chat_id: number
           created_at?: string
+          delivered_at?: string | null | Date
           id?: number
           media_url?: string | null
           message: Json
+          read_at?: string | null | Date
+          sent_at?: string | null | Date
           wam_id: string
         }
         Update: {
           chat_id?: number
           created_at?: string
+          delivered_at?: string | null | Date
           id?: number
           media_url?: string | null
           message?: Json
+          read_at?: string | null | Date
+          sent_at?: string | null | Date
           wam_id?: string
         }
         Relationships: []

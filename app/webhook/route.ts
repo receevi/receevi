@@ -5,6 +5,7 @@ import { WebHookRequest } from '../../types/webhook';
 import { createServiceClient } from '@/lib/supabase/service-client';
 import { DBTables } from '@/lib/enums/Tables';
 import { downloadMedia } from './media';
+import { updateBroadCastReplyStatus, updateBroadCastStatus } from './bulk-send-events';
 
 export const revalidate = 0
 
@@ -49,6 +50,7 @@ export async function POST(request: NextRequest) {
         const changeValue = changes[0].value;
         const contacts = changeValue.contacts;
         const messages = changeValue.messages;
+        const statuses = changeValue.statuses;
         if (contacts && contacts.length > 0) {
           for (const contact of contacts) {
             let { error } = await supabase
@@ -78,6 +80,31 @@ export async function POST(request: NextRequest) {
             if (message.type === 'image') {
               await downloadMedia(message)
             }
+          }
+          await updateBroadCastReplyStatus(messages)
+        }
+        if (statuses && statuses.length > 0) {
+          for (const status of statuses) {
+            const update_obj: {
+              sent_at?: Date,
+              delivered_at?: Date,
+              read_at?: Date,
+            } = {}
+            if (status.status === 'sent') {
+              update_obj.sent_at = new Date(Number.parseInt(status.timestamp) * 1000)
+            } else if (status.status === 'delivered') {
+              update_obj.delivered_at = new Date(Number.parseInt(status.timestamp) * 1000)
+            } else if (status.status === 'read') {
+              update_obj.read_at = new Date(Number.parseInt(status.timestamp) * 1000)
+            } else {
+              console.warn(`Unknown status : ${status.status}`)
+            }
+            let { error } = await supabase
+              .from(DBTables.Messages)
+              .update(update_obj)
+              .eq('wam_id', status.id)
+            if (error) throw error
+            await updateBroadCastStatus(status)
           }
         }
       }

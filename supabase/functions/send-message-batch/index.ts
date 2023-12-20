@@ -2,7 +2,7 @@ import { serve } from "deno-server"
 import { corsHeaders } from "../_shared/cors.ts";
 import { Broadcast, BroadcastContact } from "../bulk-send/types.ts";
 import { SupabaseClientType, createSupabaseClient } from "../_shared/client.ts";
-import { sendTemplateMessageDummy } from "./send-message.ts";
+import { sendTemplateMessage, sendTemplateMessageDummy } from "./send-message.ts";
 import { PARALLEL_SEND_MESSAGE_COUNT } from "../_shared/constants.ts";
 
 type MessageBatchReq = {
@@ -13,16 +13,24 @@ type MessageBatchReq = {
 async function sendMessageAndUpdateMessageId(supabase: SupabaseClientType, broadcast: Broadcast, contact: BroadcastContact) {
     console.log(`BroadcastId: ${broadcast.id} - Sending message to ${contact.contact_id}`)
     try {
-        const responseData = await sendTemplateMessageDummy(broadcast.template_name, broadcast.language, contact.contact_id.toString())
+        const { payload, response: responseData } = await sendTemplateMessage(broadcast.template_name, broadcast.language, contact.contact_id.toString())
         if (responseData.messages.length > 0) {
             const message_id = responseData.messages[0].id
-    
+
             const { error: errorUpdateBroadcastContact } = await supabase
                 .from('broadcast_contact')
                 .update({ sent_at: new Date(), wam_id: message_id })
                 .eq('id', contact.id)
             if (errorUpdateBroadcastContact) throw errorUpdateBroadcastContact
-    
+            const { error: errorMessageInsert } = await supabase
+                .from('messages')
+                .insert({
+                    message: payload,
+                    wam_id: message_id,
+                    chat_id: Number.parseInt(responseData.contacts[0].wa_id),
+                })
+            if (errorMessageInsert) throw errorMessageInsert
+
             //TODO: Update sent_count in broadcast table
         } else {
             console.warn(`BroadcastId: ${broadcast.id} - Send message to ${contact.contact_id} - responseData.messages.length`)

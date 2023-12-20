@@ -51,7 +51,7 @@ export async function sendTemplateMessage(templateName: string, language: string
         throw new Error(responseStatus + response);
     }
     const responseData: SendMessageResponse = await res.json()
-    return responseData;
+    return { payload, response: responseData };
 }
 
 export async function sendTemplateMessageDummy(templateName: string, language: string, contact_id: string): Promise<SendMessageResponse> {
