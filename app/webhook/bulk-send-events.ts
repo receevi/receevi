@@ -54,12 +54,11 @@ export async function updateBroadCastReplyStatus(messages: WebhookMessage[]) {
       .from('broadcast_contact')
       .select('*')
       .eq('contact_id', message.from)
-      .eq('reply_counted', false)
       .order('created_at', { ascending: false })
       .limit(1)
       .single()
     if (broadcastGetError) throw broadcastGetError
-    if (broadcastContactData) {
+    if (broadcastContactData && !broadcastContactData.reply_counted) {
       const { error: countUpdateError } = await supabase.rpc('add_replied_to_broadcast_contact', {
         b_id: broadcastContactData.broadcast_id,
         replied_count_to_be_added: 1
