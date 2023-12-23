@@ -32,7 +32,7 @@ export async function updateBroadCastStatus(status: WebhookStatus) {
     }
     const { error: countUpdateError } = await supabase.rpc('add_read_count_to_broadcast', argsToUpdateCount)
     if (countUpdateError) {
-      console.error(`Error while updating count for status.id: ${status.id}`, countUpdateError)
+      console.error(`Error while updating read count for status.id: ${status.id}`, countUpdateError)
     }
   } else if (status.status === 'delivered') {
     const argsToUpdateCount = {
@@ -41,7 +41,16 @@ export async function updateBroadCastStatus(status: WebhookStatus) {
     }
     const { error: countUpdateError } = await supabase.rpc('add_delivered_count_to_broadcast', argsToUpdateCount)
     if (countUpdateError) {
-      console.error(`Error while updating count for status.id: ${status.id}`, countUpdateError)
+      console.error(`Error while updating delivered count for status.id: ${status.id}`, countUpdateError)
+    }
+  } else if (status.status === 'sent') {
+    const argsToUpdateCount = {
+      sent_count_to_be_added: 1,
+      b_id: broadcastContactData.broadcast_id
+    }
+    const { error: countUpdateError } = await supabase.rpc('add_sent_count_to_broadcast', argsToUpdateCount)
+    if (countUpdateError) {
+      console.error(`Error while updating sent count for status.id: ${status.id}`, countUpdateError)
     }
   }
 }

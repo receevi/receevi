@@ -54,12 +54,28 @@ export async function sendTemplateMessage(templateName: string, language: string
     return { payload, response: responseData };
 }
 
-export async function sendTemplateMessageDummy(templateName: string, language: string, contact_id: string): Promise<SendMessageResponse> {
+export async function sendTemplateMessageDummy(templateName: string, language: string, contact_id: string) {
     console.log(`sendTemplateMessageDummy: templateName: ${templateName}, language: ${language}, contact_id: ${contact_id}`)
+    const payload = {
+        "messaging_product": "whatsapp",
+        "to": contact_id,
+        "type": "template",
+        "template": {
+            "name": templateName,
+            "language": {
+                "code": language
+            },
+        }
+    }
     await new Promise((resolve) => setTimeout(resolve, 500))
-    return {
+    const response: SendMessageResponse = {
         messaging_product: 'whatsapp',
-        contacts: [],
+        contacts: [
+            {
+                wa_id: contact_id,
+                input: 'whatsapp'
+            }
+        ],
         messages: [
             {
                 "id": crypto.randomUUID(),
@@ -67,4 +83,5 @@ export async function sendTemplateMessageDummy(templateName: string, language: s
             }
         ]
     }
+    return { payload, response }
 }

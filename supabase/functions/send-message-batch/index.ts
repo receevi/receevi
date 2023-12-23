@@ -19,7 +19,7 @@ async function sendMessageAndUpdateMessageId(supabase: SupabaseClientType, broad
 
             const { error: errorUpdateBroadcastContact } = await supabase
                 .from('broadcast_contact')
-                .update({ sent_at: new Date(), wam_id: message_id })
+                .update({ processed_at: new Date(), wam_id: message_id })
                 .eq('id', contact.id)
             if (errorUpdateBroadcastContact) throw errorUpdateBroadcastContact
             const { error: errorMessageInsert } = await supabase
@@ -48,7 +48,7 @@ async function sendMessages(supabase: SupabaseClientType, broadcast: Broadcast, 
         .from('broadcast_contact')
         .select('*')
         .eq('batch_id', batchId)
-        .is('sent_at', null)
+        .is('processed_at', null)
         .order('created_at', { ascending: true })
     if (error) throw error
     console.log(`BroadcastId: ${broadcast.id} - BatchId: ${batchId} - Send batch messages started`)
@@ -66,12 +66,12 @@ async function sendMessages(supabase: SupabaseClientType, broadcast: Broadcast, 
             }
             const results = await Promise.all(contactSendPromises)
             const argsToUpdateCount = {
-                sent_count_to_be_added: results.filter(r => r).length,
+                processed_count_to_be_added: results.filter(r => r).length,
                 b_id: broadcast.id
             }
-            const { error: countUpdateError } = await supabase.rpc('add_sent_count_to_broadcast', argsToUpdateCount)
+            const { error: countUpdateError } = await supabase.rpc('add_processed_count_to_broadcast', argsToUpdateCount)
             if (countUpdateError) {
-                console.error(`Error while updating count for broadcast: ${broadcast.id}, ${argsToUpdateCount.sent_count_to_be_added}`, countUpdateError)
+                console.error(`Error while updating count for broadcast: ${broadcast.id}, ${argsToUpdateCount.processed_count_to_be_added}`, countUpdateError)
             }
             contactsGroup = []
         }
