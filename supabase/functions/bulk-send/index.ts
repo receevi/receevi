@@ -100,7 +100,7 @@ serve(async (req) => {
   console.log(`BroadcastId: ${broadcastId} - ${PARALLEL_BATCH_COUNT} workers invoked`)
 
   return new Response(
-    '{"success": true"}',
+    '{"success": true}',
     { headers: { "Content-Type": "application/json", ...corsHeaders } },
   )
 })

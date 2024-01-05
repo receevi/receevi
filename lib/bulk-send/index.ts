@@ -25,7 +25,7 @@ export async function getTemplateLanguges(templateName: string): Promise<string[
     return await messageTemplateRepo.getMessageTemplateLanguages(templateName)
 }
 
-export async function bulkSend(formData: FormData) {
+export async function bulkSend(prevState: {message: string}, formData: FormData) {
     const parsed = schema.parse({
         broadcast_name: formData.get('broadcast_name'),
         message_template: formData.get('message_template'),
@@ -39,9 +39,13 @@ export async function bulkSend(formData: FormData) {
         contactTags: JSON.parse(parsed.contact_tags)
     }
     const supabase = createServerClient()
-    supabase.functions.invoke('bulk-send', {
+    const { error } = await supabase.functions.invoke('bulk-send', {
         body: bulkSendRequest
     })
+    if (error) {
+        console.error('error while initiating bulk send', error)
+        return { message: "something went wrong" }
+    }
     revalidatePath('/bulk-send', 'page');
     redirect('/bulk-send');
 }
