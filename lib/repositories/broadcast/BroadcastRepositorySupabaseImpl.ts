@@ -16,6 +16,7 @@ export class BroadcastRepositorySupabaseImpl implements BroadcastRepository {
             .from('broadcast')
             .select('*')
             .range(pageIndex * pageSize, (pageIndex + 1) * pageSize - 1)
+            .order('created_at', { ascending: false })
         if (error) throw error
         return data || [];
     }
