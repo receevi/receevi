@@ -42,6 +42,7 @@ export interface Database {
           id: string
           language: string
           name: string
+          processed_count: number
           read_count: number
           replied_count: number
           scheduled_count: number | null
@@ -55,6 +56,7 @@ export interface Database {
           id?: string
           language: string
           name: string
+          processed_count?: number
           read_count?: number
           replied_count?: number
           scheduled_count?: number | null
@@ -68,6 +70,7 @@ export interface Database {
           id?: string
           language?: string
           name?: string
+          processed_count?: number
           read_count?: number
           replied_count?: number
           scheduled_count?: number | null
@@ -117,8 +120,10 @@ export interface Database {
           created_at: string
           delivered_at: string | null
           id: string
+          processed_at: string | null
           read_at: string | null
           replied_at: string | null
+          reply_counted: boolean
           sent_at: string | null
           wam_id: string | null
         }
@@ -129,8 +134,10 @@ export interface Database {
           created_at?: string
           delivered_at?: string | null
           id?: string
+          processed_at?: string | null
           read_at?: string | null
           replied_at?: string | null
+          reply_counted?: boolean
           sent_at?: string | null | Date
           wam_id?: string | null
         }
@@ -141,8 +148,10 @@ export interface Database {
           created_at?: string
           delivered_at?: string | null
           id?: string
+          processed_at?: string | null
           read_at?: string | null
           replied_at?: string | null
+          reply_counted?: boolean
           sent_at?: string | null | Date
           wam_id?: string | null
         }
@@ -318,6 +327,34 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
+      add_delivered_count_to_broadcast: {
+        Args: {
+          b_id: string
+          delivered_count_to_be_added: number
+        }
+        Returns: undefined
+      }
+      add_processed_count_to_broadcast: {
+        Args: {
+          b_id: string
+          processed_count_to_be_added: number
+        }
+        Returns: undefined
+      }
+      add_read_count_to_broadcast: {
+        Args: {
+          b_id: string
+          read_count_to_be_added: number
+        }
+        Returns: undefined
+      }
+      add_replied_to_broadcast_contact: {
+        Args: {
+          b_id: string
+          replied_count_to_be_added: number
+        }
+        Returns: undefined
+      }
       add_sent_count_to_broadcast: {
         Args: {
           b_id: string
@@ -330,6 +367,27 @@ export interface Database {
           b_id: string
         }
         Returns: string
+      }
+      update_message_delivered_status: {
+        Args: {
+          delivered_at_in: string
+          wam_id_in: string
+        }
+        Returns: boolean
+      }
+      update_message_read_status: {
+        Args: {
+          wam_id_in: string
+          read_at_in: string
+        }
+        Returns: boolean
+      }
+      update_message_sent_status: {
+        Args: {
+          wam_id_in: string
+          sent_at_in: string
+        }
+        Returns: boolean
       }
     }
     Enums: {

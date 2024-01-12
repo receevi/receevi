@@ -86,25 +86,36 @@ export async function POST(request: NextRequest) {
         if (statuses && statuses.length > 0) {
           for (const status of statuses) {
             const update_obj: {
-              sent_at?: Date,
-              delivered_at?: Date,
-              read_at?: Date,
-            } = {}
+              wam_id_in: string,
+              sent_at_in?: Date,
+              delivered_at_in?: Date,
+              read_at_in?: Date,
+            } = {
+              wam_id_in: status.id,
+            }
+            let functionName: 'update_message_delivered_status' | 'update_message_read_status' | 'update_message_sent_status' | null = null;
             if (status.status === 'sent') {
-              update_obj.sent_at = new Date(Number.parseInt(status.timestamp) * 1000)
+              update_obj.sent_at_in = new Date(Number.parseInt(status.timestamp) * 1000)
+              functionName = 'update_message_sent_status'
             } else if (status.status === 'delivered') {
-              update_obj.delivered_at = new Date(Number.parseInt(status.timestamp) * 1000)
+              update_obj.delivered_at_in = new Date(Number.parseInt(status.timestamp) * 1000)
+              functionName = 'update_message_delivered_status'
             } else if (status.status === 'read') {
-              update_obj.read_at = new Date(Number.parseInt(status.timestamp) * 1000)
+              update_obj.read_at_in = new Date(Number.parseInt(status.timestamp) * 1000)
+              functionName = 'update_message_read_status'
             } else {
               console.warn(`Unknown status : ${status.status}`)
             }
-            let { error } = await supabase
-              .from(DBTables.Messages)
-              .update(update_obj)
-              .eq('wam_id', status.id)
-            if (error) throw error
-            await updateBroadCastStatus(status)
+            if (functionName) {
+              const { data, error: updateDeliveredStatusError } = await supabase.rpc(functionName, update_obj)
+              if (updateDeliveredStatusError) throw updateDeliveredStatusError
+              console.log(`${functionName} data`, data)
+              if (data) {
+                await updateBroadCastStatus(status)
+              } else {
+                console.warn(`Status already updated : ${status.id} : ${status.status}`)
+              }
+            }
           }
         }
       }
