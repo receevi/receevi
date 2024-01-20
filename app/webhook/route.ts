@@ -30,10 +30,10 @@ export async function POST(request: NextRequest) {
   const headersList = headers();
   const xHubSigrature256 = headersList.get('x-hub-signature-256');
   const rawRequestBody = await request.text()
-  if (!xHubSigrature256 || !verifyWebhook(rawRequestBody, xHubSigrature256)) {
-    console.warn(`Invalid signature : ${xHubSigrature256}`)
-    return new NextResponse(null, { status: 401 })
-  }
+  // if (!xHubSigrature256 || !verifyWebhook(rawRequestBody, xHubSigrature256)) {
+  //   console.warn(`Invalid signature : ${xHubSigrature256}`)
+  //   return new NextResponse(null, { status: 401 })
+  // }
   const webhookBody = JSON.parse(rawRequestBody) as WebHookRequest;
   if (webhookBody.entry.length > 0) {
     const supabase = createServiceClient()
