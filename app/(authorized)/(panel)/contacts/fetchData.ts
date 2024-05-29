@@ -22,7 +22,7 @@ export async function fetchData(options: {
     }
     const result = await contactRepository.getContacts(
         filter,
-        { column: 'profile_name', options: { ascending: true } },
+        { column: 'created_at', options: { ascending: false } },
         { limit: limit, offset: offset},
         true,
     )

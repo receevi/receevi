@@ -148,7 +148,7 @@ export interface Database {
           created_at?: string
           delivered_at?: string | null
           id?: string
-          processed_at?: string | null
+          processed_at?: string | null | Date
           read_at?: string | null
           replied_at?: string | null
           reply_counted?: boolean
