@@ -45,6 +45,7 @@ export function AddBulkContactsDialog({ children, onSuccessfulAdd }: { children:
     const [isDialogOpen, setDialogOpen] = useState(false);
     const [supabase] = useState(() => createClient())
     const [isLoading, setLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string>('');
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         /*defaultValues: {
@@ -57,6 +58,7 @@ export function AddBulkContactsDialog({ children, onSuccessfulAdd }: { children:
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         // console.log('data', data)
         setLoading(true)
+        setErrorMessage('')
         const bulkfile = data.bulkfile && data.bulkfile[0]
         // console.log('bulkfile', bulkfile)
         const csvData = await bulkfile.text()
@@ -68,7 +70,9 @@ export function AddBulkContactsDialog({ children, onSuccessfulAdd }: { children:
         });
         setLoading(false)
         if (res.error) {
-            throw res.error;
+            console.error('Error while sending bulk csv', res.error)
+            setErrorMessage("Something went wrong")
+            return;
         }
         console.log('inserting bulk contacts done')
         setDialogOpen(false)
@@ -101,6 +105,13 @@ export function AddBulkContactsDialog({ children, onSuccessfulAdd }: { children:
                                 </FormItem>
                             )}
                         />
+                        {(() => {
+                            if (errorMessage) {
+                                return (
+                                    <span className="text-red-500 text-sm">{errorMessage}</span>
+                                )
+                            }
+                        })()}
                         <DialogFooter>
                             {isLoading && <TWLoader className="w-10 h-10"/>}
                             {!isLoading && <Button type="submit">Submit</Button>}

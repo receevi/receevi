@@ -62,6 +62,7 @@ export default function ContactsClient() {
             {
                 accessorKey: "profile_name",
                 header: 'Name',
+                size: 280,
                 cell: ({ row }) => <div>{row.getValue("profile_name")}</div>,
             },
             {
