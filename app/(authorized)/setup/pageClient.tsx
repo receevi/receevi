@@ -13,21 +13,28 @@ import { CheckCircle2 } from 'lucide-react';
 import Link from "next/link";
 import constants from "@/lib/constants";
 
-async function onSetupClick() {
-    const supabaseClient = createClient()
-    const setupResponse = await supabaseClient.functions.invoke('setup')
-    console.log('setupResponse', setupResponse)
-}
-
 export default function SetupFrontendClient({ pendingItems }: { pendingItems: AppSetup[] }) {
-    const [ supabase ] = useState(() => createClient())
-    const [ pendingItemsState, setPendingItems ] = useState(pendingItems);
-    const [ isSetupCompleted, setSetupCompleted ] = useState(pendingItems.length == 0)
+    const [supabase] = useState(() => createClient())
+    const [pendingItemsState, setPendingItems] = useState(pendingItems);
+    const [isSetupCompleted, setSetupCompleted] = useState(pendingItems.length == 0)
+    const [errorMessage, setErrorMessage] = useState<string>('');
+
+    async function onSetupClick() {
+        setErrorMessage('');
+        const supabaseClient = createClient()
+        const setupResponse = await supabaseClient.functions.invoke('setup')
+        console.log('setupResponse', setupResponse)
+        if (setupResponse.error) {
+            console.error(setupResponse.error);
+            setErrorMessage('Something went wrong');
+        }
+    }
+
     useEffect(() => {
         const channel = supabase
             .channel('any')
             .on<AppSetup>('postgres_changes', { event: '*', schema: 'public', table: DBTables.Setup }, payload => {
-                switch(payload.eventType) {
+                switch (payload.eventType) {
                     case "UPDATE":
                         const indexOfItem = pendingItemsState.findIndex((setupItem: AppSetup) => setupItem.id == payload.old.id)
                         if (indexOfItem !== -1) {
@@ -80,7 +87,7 @@ export default function SetupFrontendClient({ pendingItems }: { pendingItems: Ap
                                                     )
                                                 }
                                                 return (
-                                                    <Circle/>
+                                                    <Circle />
                                                 )
                                             })()}
                                         </TableCell>
@@ -89,6 +96,7 @@ export default function SetupFrontendClient({ pendingItems }: { pendingItems: Ap
                             })}
                         </TableBody>
                     </Table>}
+                    {errorMessage && <span className="text-red-500 text-sm w-full">{errorMessage}</span>}
                     {pendingItemsState.length == 0 && <div className="w-full">You are done with setup</div>}
                     {!isSetupCompleted && <Button onClick={onSetupClick}>Complete setup</Button>}
                     {isSetupCompleted && <Link href={constants.DEFAULT_ROUTE}><Button>Take me home</Button></Link>}

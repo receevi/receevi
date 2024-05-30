@@ -67,15 +67,15 @@ export async function POST(request: NextRequest) {
         if (messages) {
           let { error } = await supabase
             .from(DBTables.Messages)
-            .insert(messages.map(message => {
+            .upsert(messages.map(message => {
               return {
                 chat_id: message.from,
                 message: message,
                 wam_id: message.id,
                 created_at: new Date(Number.parseInt(message.timestamp) * 1000)
               }
-            }))
-          if (error) throw error
+            }), { onConflict: 'wam_id', ignoreDuplicates: true })
+          if (error) throw new Error("Error while inserting messages to database", { cause: error})
           for (const message of messages) {
             if (message.type === 'image') {
               await downloadMedia(message)
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
             }
             if (functionName) {
               const { data, error: updateDeliveredStatusError } = await supabase.rpc(functionName, update_obj)
-              if (updateDeliveredStatusError) throw updateDeliveredStatusError
+              if (updateDeliveredStatusError) throw new Error(`Error while updating status, functionName: ${functionName} wam_id: ${status.id} status: ${status.status}`, { cause: updateDeliveredStatusError })
               console.log(`${functionName} data`, data)
               if (data) {
                 await updateBroadCastStatus(status)
