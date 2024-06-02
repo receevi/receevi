@@ -4,13 +4,15 @@ import { Broadcast, BroadcastContact } from "../bulk-send/types.ts";
 import { SupabaseClientType, createSupabaseClient } from "../_shared/client.ts";
 import { sendTemplateMessage, sendTemplateMessageDummy } from "./send-message.ts";
 import { PARALLEL_SEND_MESSAGE_COUNT } from "../_shared/constants.ts";
+import { Template } from "../setup/message_template.ts";
 
 type MessageBatchReq = {
     batchId: string
-    broadcast: Broadcast
+    broadcast: Broadcast,
+    messageTemplate: Template,
 }
 
-async function sendMessageAndUpdateMessageId(supabase: SupabaseClientType, broadcast: Broadcast, contact: BroadcastContact) {
+async function sendMessageAndUpdateMessageId(supabase: SupabaseClientType, broadcast: Broadcast, contact: BroadcastContact, messageTemplate: Template) {
     console.log(`BroadcastId: ${broadcast.id} - Sending message to ${contact.contact_id}`)
     try {
         const { payload, response: responseData } = await sendTemplateMessage(broadcast.template_name, broadcast.language, contact.contact_id.toString())
@@ -22,10 +24,14 @@ async function sendMessageAndUpdateMessageId(supabase: SupabaseClientType, broad
                 .update({ processed_at: new Date(), wam_id: message_id })
                 .eq('id', contact.id)
             if (errorUpdateBroadcastContact) throw errorUpdateBroadcastContact
+            const msgToPut: any = structuredClone(payload)
+            delete msgToPut.messaging_product;
+            msgToPut['id'] = message_id
+            msgToPut['template'] = messageTemplate
             const { error: errorMessageInsert } = await supabase
                 .from('messages')
                 .insert({
-                    message: payload,
+                    message: msgToPut,
                     wam_id: message_id,
                     chat_id: Number.parseInt(responseData.contacts[0].wa_id),
                 })
@@ -43,7 +49,7 @@ async function sendMessageAndUpdateMessageId(supabase: SupabaseClientType, broad
     }
 }
 
-async function sendMessages(supabase: SupabaseClientType, broadcast: Broadcast, batchId: string) {
+async function sendMessages(supabase: SupabaseClientType, broadcast: Broadcast, batchId: string, messageTemplate: Template) {
     const { data: contacts, error } = await supabase
         .from('broadcast_contact')
         .select('*')
@@ -62,7 +68,7 @@ async function sendMessages(supabase: SupabaseClientType, broadcast: Broadcast, 
             console.log(`Sending messages parallelly to: ${contactsGroup.map(c => c.contact_id)}`)
             const contactSendPromises = []
             for (const contactToSend of contactsGroup) {
-                contactSendPromises.push(sendMessageAndUpdateMessageId(supabase, broadcast, contactToSend))
+                contactSendPromises.push(sendMessageAndUpdateMessageId(supabase, broadcast, contactToSend, messageTemplate))
             }
             const results = await Promise.all(contactSendPromises)
             const argsToUpdateCount = {
@@ -79,13 +85,13 @@ async function sendMessages(supabase: SupabaseClientType, broadcast: Broadcast, 
     console.log(`BroadcastId: ${broadcast.id} - BatchId: ${batchId} - Send batch messages completed`)
 }
 
-async function startBatch(supabase: SupabaseClientType, broadcast: Broadcast, batchId: string) {
+async function startBatch(supabase: SupabaseClientType, broadcast: Broadcast, batchId: string, messageTemplate: Template) {
     const { error: errorStartBatch } = await supabase
         .from('broadcast_batch')
         .update({ started_at: new Date() })
         .eq('id', batchId)
     if (errorStartBatch) throw errorStartBatch
-    await sendMessages(supabase, broadcast, batchId)
+    await sendMessages(supabase, broadcast, batchId, messageTemplate)
     const { error: errorEndBatch } = await supabase
         .from('broadcast_batch')
         .update({ ended_at: new Date(), status: "COMPLETED" })
@@ -93,14 +99,14 @@ async function startBatch(supabase: SupabaseClientType, broadcast: Broadcast, ba
     if (errorEndBatch) throw errorEndBatch
 }
 
-async function startNextBatch(supabase: SupabaseClientType, broadcast: Broadcast): Promise<boolean> {
+async function startNextBatch(supabase: SupabaseClientType, broadcast: Broadcast, messageTemplate: Template): Promise<boolean> {
     let success = false;
     const { data: batchId, error } = await supabase.rpc('pick_next_broadcast_batch', {
         b_id: broadcast.id
     })
     if (error) throw error
     if (batchId) {
-        await startBatch(supabase, broadcast, batchId)
+        await startBatch(supabase, broadcast, batchId, messageTemplate)
         success = true;
     }
     console.log('batchId', batchId)
@@ -119,11 +125,12 @@ serve(async (req) => {
         return new Response('', { status: 401, headers: corsHeaders })
     }
     const messageBatchReq: MessageBatchReq = await req.json()
-    const success = await startNextBatch(supabase, messageBatchReq.broadcast)
+    const success = await startNextBatch(supabase, messageBatchReq.broadcast, messageBatchReq.messageTemplate)
     if (success) {
         supabase.functions.invoke('send-message-batch', {
             body: {
-                broadcast: messageBatchReq.broadcast
+                broadcast: messageBatchReq.broadcast,
+                messageTemplate: messageBatchReq.messageTemplate
             }
         })
     }

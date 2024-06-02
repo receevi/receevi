@@ -3,6 +3,7 @@ import { Response } from "https://esm.sh/v133/@supabase/node-fetch@2.6.14/denone
 import { SupabaseClientType, createSupabaseClient } from "../_shared/client.ts";
 import { PARALLEL_BATCH_COUNT, PROCESSING_LIMIT } from "../_shared/constants.ts";
 import { corsHeaders } from '../_shared/cors.ts';
+import { getMessageTemplate } from "./get-message-template.ts";
 
 type BulkSendRequest = {
   name: string,
@@ -90,10 +91,13 @@ serve(async (req) => {
     .eq('id', broadcastId)
   if (errorUpdateBroadcastSC) throw errorUpdateBroadcastSC
 
+  const messageTemplate = await getMessageTemplate(requestData.messageTemplate, requestData.language)
+
   for (let i = 0; i < Math.min(PARALLEL_BATCH_COUNT, contactsMarkedForSent.batches.length); i++) {
     supabase.functions.invoke('send-message-batch', {
       body: {
-        broadcast: broadcast[0]
+        broadcast: broadcast[0],
+        messageTemplate: messageTemplate
       }
     })
   }

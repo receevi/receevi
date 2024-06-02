@@ -105,6 +105,8 @@ export async function POST(request: NextRequest) {
               functionName = 'update_message_read_status'
             } else {
               console.warn(`Unknown status : ${status.status}`)
+              console.warn('status', status)
+              return new NextResponse()
             }
             if (functionName) {
               const { data, error: updateDeliveredStatusError } = await supabase.rpc(functionName, update_obj)

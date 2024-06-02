@@ -16,6 +16,8 @@ export async function updateBroadCastStatus(status: WebhookStatus) {
     update_obj.read_at = new Date(Number.parseInt(status.timestamp) * 1000)
   } else {
     console.warn(`Unknown status : ${status.status}`)
+    console.warn('status', status)
+    return;
   }
   const { data: broadcastContactData, error: broadcastContactUpdateError } = await supabase
     .from('broadcast_contact')

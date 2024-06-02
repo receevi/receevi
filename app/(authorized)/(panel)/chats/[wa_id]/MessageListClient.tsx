@@ -2,11 +2,12 @@
 
 import { useEffect, useRef, useState } from "react"
 import { DBTables } from "@/lib/enums/Tables"
-import { MessageJson, TextMessage } from "@/types/Message"
+import { MessageJson, TemplateMessage, TextMessage } from "@/types/Message"
 import { createClient } from "@/utils/supabase-browser"
 import ReceivedImageMessageUI from "./ReceivedImageMessageUI"
 import ReceivedTextMessageUI from "./ReceivedTextMessageUI"
 import TailWrapper from "./TailWrapper"
+import ReceivedTemplateMessageUI from "./ReceivedTemplateMessageUI"
 
 type UIMessageModel = DBMessage & {
     msgDate: string
@@ -76,6 +77,8 @@ export default function MessageListClient({ messages, from }: { messages: DBMess
                                                         return <ReceivedTextMessageUI textMessage={messageBody as TextMessage} />
                                                     case "image":
                                                         return <ReceivedImageMessageUI message={message} />
+                                                    case "template":
+                                                        return <ReceivedTemplateMessageUI message={messageBody as TemplateMessage} />
                                                     default:
                                                         return <div>Unsupported message</div>
                                                 }
