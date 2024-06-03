@@ -26,12 +26,14 @@ import Loading from "../../../loading"
 import { AddContactDialog } from "./AddContactDialog"
 import { ContactsTable } from "./ContactsTable"
 import { fetchData, itemsPerPage } from "./fetchData"
+import { AddBulkContactsDialog } from "./AddBulkContactsDialog"
 
 export default function ContactsClient() {
     const columns = useMemo<ColumnDef<Contact>[]>(
         () => [
             {
                 id: "select",
+                size: 40,
                 header: ({ table }) => (
                     <Checkbox
                         checked={table.getIsAllPageRowsSelected()}
@@ -52,6 +54,7 @@ export default function ContactsClient() {
             {
                 accessorKey: "wa_id",
                 header: "Number",
+                size: 160,
                 cell: ({ row }) => (
                     <div>{row.getValue("wa_id")}</div>
                 ),
@@ -59,10 +62,24 @@ export default function ContactsClient() {
             {
                 accessorKey: "profile_name",
                 header: 'Name',
+                size: 280,
                 cell: ({ row }) => <div>{row.getValue("profile_name")}</div>,
             },
             {
+                accessorKey: "created_at",
+                header: 'Created At',
+                size: 280,
+                cell: ({ row }) => <div>{row.getValue("created_at")}</div>,
+            },
+            {
+                accessorKey: "tags",
+                header: 'Tags',
+                size: 280,
+                cell: ({ row }) => <div>{(row.getValue('tags') as unknown as string[])?.join(", ")}</div>,
+            },
+            {
                 id: "actions",
+                size: 40,
                 enableHiding: false,
                 cell: ({ row }) => {
                     return (
@@ -142,16 +159,21 @@ export default function ContactsClient() {
 
     return (
         <div className="w-full">
-            <div className="flex items-center py-4">
+            <div className="flex justify-between items-center py-4">
                 <Input
                     placeholder="Search name..."
                     value={searchFilter}
                     onChange={(event) => setSearchFilter(event.target.value) }
                     className="max-w-sm"
                 />
-                <AddContactDialog onSuccessfulAdd={dataQuery.refetch}>
-                    <Button className="ml-auto">Add Contact</Button>
-                </AddContactDialog>
+                <div className="space-x-2">
+                    <AddBulkContactsDialog onSuccessfulAdd={dataQuery.refetch}>
+                        <Button className="ml-auto">Add Bulk Contacts via CSV</Button>
+                    </AddBulkContactsDialog>
+                    <AddContactDialog onSuccessfulAdd={dataQuery.refetch}>
+                        <Button className="ml-auto">Add Contact</Button>
+                    </AddContactDialog>
+                </div>
             </div>
             <div className="rounded-md border relative">
                 {dataQuery.isLoading && <div className="absolute block w-full h-full bg-gray-500 opacity-30">

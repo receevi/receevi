@@ -12,7 +12,7 @@ export type WhatsappPaging = {
 
 export type MessageTemplate = {
     name: string;
-    previous_category?: string;
+    previous_category?: string | null;
     components: MessageTemplateComponent[];
     language: string;
     status: string;

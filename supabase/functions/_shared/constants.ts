@@ -1,0 +1,3 @@
+export const PROCESSING_LIMIT = 1000
+export const PARALLEL_BATCH_COUNT = 3
+export const PARALLEL_SEND_MESSAGE_COUNT = 50

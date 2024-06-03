@@ -5,6 +5,7 @@ import { WebHookRequest } from '../../types/webhook';
 import { createServiceClient } from '@/lib/supabase/service-client';
 import { DBTables } from '@/lib/enums/Tables';
 import { downloadMedia } from './media';
+import { updateBroadCastReplyStatus, updateBroadCastStatus } from './bulk-send-events';
 
 export const revalidate = 0
 
@@ -49,6 +50,7 @@ export async function POST(request: NextRequest) {
         const changeValue = changes[0].value;
         const contacts = changeValue.contacts;
         const messages = changeValue.messages;
+        const statuses = changeValue.statuses;
         if (contacts && contacts.length > 0) {
           for (const contact of contacts) {
             let { error } = await supabase
@@ -65,18 +67,56 @@ export async function POST(request: NextRequest) {
         if (messages) {
           let { error } = await supabase
             .from(DBTables.Messages)
-            .insert(messages.map(message => {
+            .upsert(messages.map(message => {
               return {
                 chat_id: message.from,
                 message: message,
                 wam_id: message.id,
                 created_at: new Date(Number.parseInt(message.timestamp) * 1000)
               }
-            }))
-          if (error) throw error
+            }), { onConflict: 'wam_id', ignoreDuplicates: true })
+          if (error) throw new Error("Error while inserting messages to database", { cause: error})
           for (const message of messages) {
             if (message.type === 'image') {
               await downloadMedia(message)
+            }
+          }
+          await updateBroadCastReplyStatus(messages)
+        }
+        if (statuses && statuses.length > 0) {
+          for (const status of statuses) {
+            const update_obj: {
+              wam_id_in: string,
+              sent_at_in?: Date,
+              delivered_at_in?: Date,
+              read_at_in?: Date,
+            } = {
+              wam_id_in: status.id,
+            }
+            let functionName: 'update_message_delivered_status' | 'update_message_read_status' | 'update_message_sent_status' | null = null;
+            if (status.status === 'sent') {
+              update_obj.sent_at_in = new Date(Number.parseInt(status.timestamp) * 1000)
+              functionName = 'update_message_sent_status'
+            } else if (status.status === 'delivered') {
+              update_obj.delivered_at_in = new Date(Number.parseInt(status.timestamp) * 1000)
+              functionName = 'update_message_delivered_status'
+            } else if (status.status === 'read') {
+              update_obj.read_at_in = new Date(Number.parseInt(status.timestamp) * 1000)
+              functionName = 'update_message_read_status'
+            } else {
+              console.warn(`Unknown status : ${status.status}`)
+              console.warn('status', status)
+              return new NextResponse()
+            }
+            if (functionName) {
+              const { data, error: updateDeliveredStatusError } = await supabase.rpc(functionName, update_obj)
+              if (updateDeliveredStatusError) throw new Error(`Error while updating status, functionName: ${functionName} wam_id: ${status.id} status: ${status.status}`, { cause: updateDeliveredStatusError })
+              console.log(`${functionName} data`, data)
+              if (data) {
+                await updateBroadCastStatus(status)
+              } else {
+                console.warn(`Status already updated : ${status.id} : ${status.status}`)
+              }
             }
           }
         }

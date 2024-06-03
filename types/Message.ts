@@ -1,3 +1,4 @@
+import { MessageTemplate } from "./message-template"
 
 export type MessageJson = {
     from?: string,
@@ -19,6 +20,10 @@ export type ImageMessageBody = {
     mime_type: string,
     sha256: string,
     id: string,
+}
+
+export type TemplateMessage = MessageJson & {
+    template: MessageTemplate
 }
 
 export type ImageMessage = MessageJson & {
