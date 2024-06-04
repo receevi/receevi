@@ -47,7 +47,6 @@ function MessageTemplateButtonsComp(props: { component: MessageTemplateButtons }
 }
 
 export default function ReceivedTemplateMessageUI(props: { message: TemplateMessage }) {
-    console.log('message', props.message.template.components)
     return props.message.template.components.map((component, index) => {
         switch(component.type) {
             case 'HEADER':
