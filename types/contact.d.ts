@@ -6,4 +6,5 @@ export type Contact = {
     tags: string[] | null,
     is_current?: boolean,
     in_chat: boolean,
+    unread_count: number | null,
 }

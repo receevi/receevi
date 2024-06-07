@@ -72,7 +72,8 @@ export async function POST(request: NextRequest) {
                 chat_id: message.from,
                 message: message,
                 wam_id: message.id,
-                created_at: new Date(Number.parseInt(message.timestamp) * 1000)
+                created_at: new Date(Number.parseInt(message.timestamp) * 1000),
+                is_received: true,
               }
             }), { onConflict: 'wam_id', ignoreDuplicates: true })
           if (error) throw new Error("Error while inserting messages to database", { cause: error})
@@ -82,6 +83,9 @@ export async function POST(request: NextRequest) {
             }
           }
           await updateBroadCastReplyStatus(messages)
+          await supabase.functions.invoke('update-unread-count', { body: {
+            chat_id: messages.map(m => m.from).filter((m, i, a) => a.indexOf(m) === i)
+          }})
         }
         if (statuses && statuses.length > 0) {
           for (const status of statuses) {

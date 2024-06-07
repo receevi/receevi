@@ -182,6 +182,7 @@ export interface Database {
           last_message_at: string | null
           profile_name: string | null
           tags: string[] | null
+          unread_count: number | null
           wa_id: number
         }
         Insert: {
@@ -190,6 +191,7 @@ export interface Database {
           last_message_at?: string | null
           profile_name?: string | null
           tags?: string[] | null
+          unread_count?: number | null
           wa_id: number
         }
         Update: {
@@ -198,6 +200,7 @@ export interface Database {
           last_message_at?: string | null
           profile_name?: string | null
           tags?: string[] | null
+          unread_count?: number | null
           wa_id?: number
         }
         Relationships: []
@@ -244,9 +247,11 @@ export interface Database {
           created_at: string
           delivered_at: string | null
           id: number
+          is_received: boolean
           media_url: string | null
           message: Json
           read_at: string | null
+          read_by_user_at: string | null
           sent_at: string | null
           wam_id: string
         }
@@ -255,9 +260,11 @@ export interface Database {
           created_at?: string
           delivered_at?: string | null | Date
           id?: number
+          is_received?: boolean
           media_url?: string | null
           message: Json
           read_at?: string | null | Date
+          read_by_user_at?: string | null | Date
           sent_at?: string | null | Date
           wam_id: string
         }
@@ -266,9 +273,11 @@ export interface Database {
           created_at?: string
           delivered_at?: string | null | Date
           id?: number
+          is_received?: boolean
           media_url?: string | null
           message?: Json
           read_at?: string | null | Date
+          read_by_user_at?: string | null | Date
           sent_at?: string | null | Date
           wam_id?: string
         }
