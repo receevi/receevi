@@ -28,6 +28,7 @@ export default function MessageListClient({ from }: { from: string }) {
     const [supabase] = useState(() => createClient())
     const [stateMessages, setMessages] = useState<UIMessageModel[]>(addDateToMessages([]))
     const [additionalMessagesLoading, setAdditionalMessagesLoading] = useState<boolean>(false)
+    const [noMoreMessages, setNoMoreMessages] = useState<boolean>(false)
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const scrollToBottom = (bottom: number = 0) => {
         if (messagesEndRef.current) {
@@ -54,10 +55,12 @@ export default function MessageListClient({ from }: { from: string }) {
                 chatId: from
             }).then().catch(error => console.error(error))
         }
+        if (messages.length === 0) {
+            setNoMoreMessages(true)
+        }
         return messages;
     }
     useEffect(() => {
-        console.log('here')
         const channel = supabase
             .channel('any')
             .on<DBMessage>('postgres_changes', {
@@ -67,7 +70,9 @@ export default function MessageListClient({ from }: { from: string }) {
                 filter: `chat_id=eq.${from}`
             }, payload => {
                 setMessages([...stateMessages, ...addDateToMessages([payload.new])])
-                scrollToBottom()
+                setTimeout(() => {
+                    scrollToBottom()
+                }, 100)
                 if (payload.new.is_received && payload.new.read_by_user_at === null) {
                     markAsRead({
                         messageIds: [payload.new.id],
@@ -103,7 +108,7 @@ export default function MessageListClient({ from }: { from: string }) {
     }
 
     const onDivScroll = async (event: React.UIEvent<HTMLDivElement>) => {
-        if (!additionalMessagesLoading && messagesEndRef.current?.scrollTop && messagesEndRef.current?.scrollTop < 100) {
+        if (!additionalMessagesLoading && !noMoreMessages && messagesEndRef.current?.scrollTop && messagesEndRef.current?.scrollTop < 100) {
             setAdditionalMessagesLoading(true)
             await loadAdditionalMessages()
         }
