@@ -107,7 +107,9 @@ export default function MessageListClient({ from }: { from: string }) {
                 setNewMessageId(unreadId)
             }
             setMessages(addedDates)
-            scrollToBottom()
+            setTimeout(() => {
+                scrollToBottom()
+            }, 100)
         })()
     }, [supabase, setMessages, from])
 
