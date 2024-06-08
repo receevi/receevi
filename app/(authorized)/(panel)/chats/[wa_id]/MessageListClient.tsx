@@ -29,6 +29,7 @@ export default function MessageListClient({ from }: { from: string }) {
     const [stateMessages, setMessages] = useState<UIMessageModel[]>(addDateToMessages([]))
     const [additionalMessagesLoading, setAdditionalMessagesLoading] = useState<boolean>(false)
     const [noMoreMessages, setNoMoreMessages] = useState<boolean>(false)
+    const [newMessageId, setNewMessageId] = useState<number | undefined>()
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const scrollToBottom = (bottom: number = 0) => {
         if (messagesEndRef.current) {
@@ -48,6 +49,10 @@ export default function MessageListClient({ from }: { from: string }) {
         }
         const { data: messages, error } = await query
         if (error) throw error
+        return messages;
+    }
+
+    function markAsReadUnreadMessages(messages: DBMessage[]) {
         const unreadReceivedMessages = messages?.filter(m => m.is_received && m.read_by_user_at === null).map(m => m.id)
         if (unreadReceivedMessages && unreadReceivedMessages?.length > 0) {
             markAsRead({
@@ -58,8 +63,8 @@ export default function MessageListClient({ from }: { from: string }) {
         if (messages.length === 0) {
             setNoMoreMessages(true)
         }
-        return messages;
     }
+
     useEffect(() => {
         const channel = supabase
             .channel('any')
@@ -86,8 +91,21 @@ export default function MessageListClient({ from }: { from: string }) {
     useEffect(() => {
         (async () => {
             const messages = await fetchMessages()
+            markAsReadUnreadMessages(messages)
+            let unreadId;
+            for (let i = 0; i < messages.length; i++) {
+                if (messages[i].is_received && messages[i].read_by_user_at === null) {
+                    unreadId = messages[i].id;
+                } else {
+                    break;
+                }
+            }
             messages.reverse()
             const addedDates = addDateToMessages(messages)
+            if (unreadId) {
+                console.log('unreadId', unreadId)
+                setNewMessageId(unreadId)
+            }
             setMessages(addedDates)
             scrollToBottom()
         })()
@@ -96,6 +114,7 @@ export default function MessageListClient({ from }: { from: string }) {
     async function loadAdditionalMessages() {
         if (stateMessages.length > 0 && stateMessages[0].created_at && messagesEndRef.current) {
             const additionalMessages = await fetchMessages(stateMessages[0].created_at)
+            markAsReadUnreadMessages(additionalMessages)
             additionalMessages.reverse()
             const addedDates = addDateToMessages(additionalMessages)
             const scrollBottom = messagesEndRef.current?.scrollHeight - messagesEndRef.current?.scrollTop
@@ -126,6 +145,17 @@ export default function MessageListClient({ from }: { from: string }) {
                                     return (
                                         <div className="flex justify-center ">
                                             <span className="p-2 rounded-md bg-system-message-background text-system-message-text text-sm">{message.msgDate}</span>
+                                        </div>
+                                    )
+                                }
+                            })()
+                        }
+                        {
+                            (() => {
+                                if (newMessageId && message.id === newMessageId) {
+                                    return (
+                                        <div className="flex justify-center ">
+                                            <span className="p-2 rounded-md bg-system-message-background text-system-message-text text-sm">Unread messages</span>
                                         </div>
                                     )
                                 }
