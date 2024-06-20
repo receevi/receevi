@@ -9,6 +9,8 @@ import NextTopLoader from 'nextjs-toploader';
 // do not cache this layout
 export const revalidate = 0
 
+export const dynamic = "force-dynamic";
+
 export default async function RootLayout({
   children,
 }: {
