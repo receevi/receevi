@@ -1,4 +1,4 @@
-import { serve } from "deno-server"
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { corsHeaders } from "../_shared/cors.ts";
 import { Broadcast, BroadcastContact } from "../bulk-send/types.ts";
 import { SupabaseClientType, createSupabaseClient } from "../_shared/client.ts";

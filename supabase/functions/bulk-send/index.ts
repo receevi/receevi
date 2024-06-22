@@ -1,4 +1,4 @@
-import { serve } from "deno-server";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { Response } from "https://esm.sh/v133/@supabase/node-fetch@2.6.14/denonext/node-fetch.mjs";
 import { SupabaseClientType, createSupabaseClient } from "../_shared/client.ts";
 import { PARALLEL_BATCH_COUNT, PROCESSING_LIMIT } from "../_shared/constants.ts";

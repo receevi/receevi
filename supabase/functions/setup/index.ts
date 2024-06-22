@@ -1,5 +1,5 @@
-import { serve } from "deno-server"
-import { createClient } from 'supabase-js'
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
 import { Response } from "https://esm.sh/v133/@supabase/node-fetch@2.6.14/denonext/node-fetch.mjs";
 import { MessageTemplateSetup } from "./message_template.ts";
