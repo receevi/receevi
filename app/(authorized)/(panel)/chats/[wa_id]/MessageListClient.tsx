@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from "react"
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react"
 import { DBTables } from "@/lib/enums/Tables"
 import { MessageJson, TemplateMessage, TextMessage } from "@/types/Message"
 import { createClient } from "@/utils/supabase-browser"
@@ -24,7 +24,7 @@ function addDateToMessages(withoutDateArray: DBMessage[]): UIMessageModel[] {
     })
 }
 
-export default function MessageListClient({ from }: { from: string }) {
+export default function MessageListClient({ from, setChatWindowOpen }: { from: string, setChatWindowOpen: Dispatch<SetStateAction<boolean | undefined>> }) {
     const [supabase] = useState(() => createClient())
     const [stateMessages, setMessages] = useState<UIMessageModel[]>(addDateToMessages([]))
     const [additionalMessagesLoading, setAdditionalMessagesLoading] = useState<boolean>(false)
@@ -111,7 +111,23 @@ export default function MessageListClient({ from }: { from: string }) {
                 scrollToBottom()
             }, 100)
         })()
-    }, [supabase, setMessages, from])
+    }, [supabase, setMessages, from, setChatWindowOpen])
+
+    useEffect(() => {
+        if (stateMessages && stateMessages[stateMessages.length - 1]) {
+            const lastMessage = stateMessages[stateMessages.length - 1]
+            const minute = 1000 * 60;
+            const hour = minute * 60;
+            const day = hour * 24;
+
+            const messageCreationTime = (new Date(lastMessage.created_at)).getTime()
+            const currentTime = (new Date()).getTime()
+            const isChatWindowOpen = (currentTime - messageCreationTime) < day
+            setChatWindowOpen(isChatWindowOpen)
+        } else {
+            setChatWindowOpen(false)
+        }
+    }, [stateMessages, setChatWindowOpen])
 
     async function loadAdditionalMessages() {
         if (stateMessages.length > 0 && stateMessages[0].created_at && messagesEndRef.current) {
