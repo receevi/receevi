@@ -45,6 +45,7 @@ export interface Database {
           processed_count: number
           read_count: number
           replied_count: number
+          failed_count: number
           scheduled_count: number | null
           sent_count: number
           template_name: string
@@ -59,6 +60,7 @@ export interface Database {
           processed_count?: number
           read_count?: number
           replied_count?: number
+          failed_count?: number
           scheduled_count?: number | null
           sent_count?: number
           template_name: string
@@ -73,6 +75,7 @@ export interface Database {
           processed_count?: number
           read_count?: number
           replied_count?: number
+          failed_count?: number
           scheduled_count?: number | null
           sent_count?: number
           template_name?: string

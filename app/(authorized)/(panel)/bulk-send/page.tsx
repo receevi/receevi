@@ -96,6 +96,7 @@ export default async function BulkSendPage({
                             <TableHead className="text-right">Delivered</TableHead>
                             <TableHead className="text-right">Read</TableHead>
                             <TableHead className="text-right">Replied</TableHead>
+                            <TableHead className="text-right">Failed</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -109,6 +110,7 @@ export default async function BulkSendPage({
                                 <TableCell className="text-right">{broadcast.delivered_count}</TableCell>
                                 <TableCell className="text-right">{broadcast.read_count}</TableCell>
                                 <TableCell className="text-right">{broadcast.replied_count}</TableCell>
+                                <TableCell className="text-right">{broadcast.failed_count}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

@@ -7,6 +7,7 @@ export async function updateBroadCastStatus(status: WebhookStatus) {
     sent_at?: Date,
     delivered_at?: Date,
     read_at?: Date,
+    failed_at?: Date,
   } = {}
   if (status.status === 'sent') {
     update_obj.sent_at = new Date(Number.parseInt(status.timestamp) * 1000)
@@ -14,6 +15,8 @@ export async function updateBroadCastStatus(status: WebhookStatus) {
     update_obj.delivered_at = new Date(Number.parseInt(status.timestamp) * 1000)
   } else if (status.status === 'read') {
     update_obj.read_at = new Date(Number.parseInt(status.timestamp) * 1000)
+  } else if (status.status === 'failed') {
+    update_obj.failed_at = new Date(Number.parseInt(status.timestamp) * 1000)
   } else {
     console.warn(`Unknown status : ${status.status}`)
     console.warn('status', status)
@@ -54,6 +57,15 @@ export async function updateBroadCastStatus(status: WebhookStatus) {
       const { error: countUpdateError } = await supabase.rpc('add_sent_count_to_broadcast', argsToUpdateCount)
       if (countUpdateError) {
         console.error(`Error while updating sent count for status.id: ${status.id}`, countUpdateError)
+      }
+    } else if (status.status === 'failed') {
+      const argsToUpdateCount = {
+        failed_count_to_be_added: 1,
+        b_id: singleContact.broadcast_id
+      }
+      const { error: countUpdateError } = await supabase.rpc('add_failed_count_to_broadcast', argsToUpdateCount)
+      if (countUpdateError) {
+        console.error(`Error while updating failed count for status.id: ${status.id}`, countUpdateError)
       }
     }
   }
