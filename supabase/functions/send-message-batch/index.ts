@@ -36,6 +36,13 @@ async function sendMessageAndUpdateMessageId(supabase: SupabaseClientType, broad
                     chat_id: Number.parseInt(responseData.contacts[0].wa_id),
                 })
             if (errorMessageInsert) throw errorMessageInsert
+            let { error } = await supabase
+                .from('contacts')
+                .update({
+                    last_message_at: new Date(),
+                })
+                .eq('wa_id', contact.contact_id)
+            if (error) console.error('error while updating last message field')
 
             //TODO: Update sent_count in broadcast table
         } else {

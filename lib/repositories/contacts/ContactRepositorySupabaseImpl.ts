@@ -55,4 +55,13 @@ export class ContactRepositorySupabaseImpl implements ContactRepository {
         if (error) throw error
         return data
     }
+
+    async getContactById(contactId: string): Promise<ContactFromDB> {
+        const { data, error } = await this.client
+            .from('contacts')
+            .select('*')
+            .eq('wa_id', contactId)
+        if (error) throw error
+        return data && data[0]
+    }
 }

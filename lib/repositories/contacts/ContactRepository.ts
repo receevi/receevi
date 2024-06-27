@@ -41,5 +41,6 @@ export interface ContactRepository {
     ): Promise<{ rows: Contact[], itemsCount: number | null }>
 
     getContactsHavingTag(tags: string[]): Promise<ContactFromDB[]>
+    getContactById(contactId: string): Promise<ContactFromDB>
 }
 

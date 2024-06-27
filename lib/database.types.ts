@@ -183,6 +183,7 @@ export interface Database {
           created_at: string | null
           in_chat: boolean
           last_message_at: string | null
+          last_message_received_at: string | null
           profile_name: string | null
           tags: string[] | null
           unread_count: number | null
@@ -191,7 +192,8 @@ export interface Database {
         Insert: {
           created_at?: string | null
           in_chat?: boolean
-          last_message_at?: string | null
+          last_message_at?: string | null | Date
+          last_message_received_at?: string | null | Date
           profile_name?: string | null
           tags?: string[] | null
           unread_count?: number | null
@@ -200,7 +202,8 @@ export interface Database {
         Update: {
           created_at?: string | null
           in_chat?: boolean
-          last_message_at?: string | null
+          last_message_at?: string | null | Date
+          last_message_received_at?: string | null | Date
           profile_name?: string | null
           tags?: string[] | null
           unread_count?: number | null
