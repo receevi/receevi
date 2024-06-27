@@ -9,7 +9,7 @@ export default function PanelClient({ children }: { children: ReactNode }) {
     const activePath = usePathname();
     return (
         <div className="flex flex-row h-screen">
-            <div className="flex-[6] border-e-2 border-e-slate-100 p-4">
+            <div className="flex-[4] border-e-2 border-e-slate-100 p-4">
                 <div className="text-center">Receevi</div>
                 <div className="mt-8">
                     <Link href="/chats"><Button variant={activePath?.startsWith('/chats')? "default" : "ghost"} className="w-full justify-start">Chats</Button></Link>
