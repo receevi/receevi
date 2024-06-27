@@ -25,7 +25,15 @@ type Message = {
     }
 };
 
-async function uploadFile(file: File) {
+function getFileExtention(fileName: string): (string | null) {
+    const fileNameRegexRes =  (/[.]/.exec(fileName)) ? /[^.]+$/.exec(fileName) : undefined;
+    if (fileNameRegexRes && fileNameRegexRes.length) {
+        return fileNameRegexRes[0]
+    }
+    return null
+}
+
+async function uploadFile(file: File, to: string) {
     const WHATSAPP_API_URL = `https://graph.facebook.com/v20.0/${process.env.WHATSAPP_API_PHONE_NUMBER_ID}/media`;
     const headers = {
         'Authorization': `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`
@@ -45,7 +53,23 @@ async function uploadFile(file: File) {
         throw new Error(responseStatus + response);
     }
     const response = await res.json()
-    return response.id;
+
+    let extension = getFileExtention(file.name);
+
+    const supabase = createServiceClient()
+
+    const { data, error } = await supabase
+        .storage
+        .from('media')
+        .upload(`${to}/${response.id}.${extension}`, file, {
+            cacheControl: '3600',
+            contentType: file.type,
+            upsert: false,
+            duplex: 'half',
+        })
+    console.log(`media stored at ${data?.path}`)
+    if (error) throw error
+    return [response.id, data.path];
 }
 
 async function sendWhatsAppMessage(to: string, message: string | null | undefined, fileType: string | undefined | null, file: File | undefined | null) {
@@ -55,8 +79,10 @@ async function sendWhatsAppMessage(to: string, message: string | null | undefine
         recipient_type: "individual",
         to: to,
     };
+    let mediaUrl : (string | null) = null
     if (file) {
-        const mediaId = await uploadFile(file)
+        let mediaId;
+        [mediaId, mediaUrl] = await uploadFile(file, to)
         switch (fileType) {
             case 'image':
                 payload['type'] = 'image'
@@ -120,6 +146,7 @@ async function sendWhatsAppMessage(to: string, message: string | null | undefine
             message: msgToPut,
             wam_id: wamId,
             chat_id: Number.parseInt(response.contacts[0].wa_id),
+            media_url: mediaUrl,
         })
     console.log(supabaseResponse)
 }
@@ -146,5 +173,12 @@ export async function POST(request: NextRequest) {
         return new NextResponse(null, { status: 400 })
     }
     await sendWhatsAppMessage(to, message, fileType, file)
+    let { error } = await supabase
+        .from(DBTables.Contacts)
+        .update({
+            last_message_at: new Date(),
+        })
+        .eq('wa_id', to)
+    if (error) console.error('error while updating last message field')
     return new NextResponse()
 }
