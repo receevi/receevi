@@ -67,6 +67,7 @@ export default function SendMessageUI({ message, fileType, file, setMessage, set
         setFileType(undefined)
         setMediaSrcUrl(undefined)
         setFileName(undefined)
+        setFile(undefined)
     }
 
     return (

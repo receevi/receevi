@@ -9,7 +9,9 @@ export type WebhookMessage = {
     id: string,
     timestamp: string,
     image?: WebhookImage,
-    type: 'text' | 'reaction' | 'image',
+    video?: WebhookImage,
+    document?: WebhookImage,
+    type: 'text' | 'reaction' | 'image' | 'video' | 'document',
 }
 
 export type WebhookStatus = {

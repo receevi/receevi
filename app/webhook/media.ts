@@ -16,8 +16,8 @@ function getFileExtensionFromContentDisposition(contentDisposition: string) {
 }
 
 export async function downloadMedia(imageMessage: WebhookMessage) {
-    const imageDetails = imageMessage.image
-    if (!imageDetails) {
+    const mediaDetails = imageMessage.image || imageMessage.video || imageMessage.document
+    if (!mediaDetails) {
         throw new Error("image details not available in image key")
     }
     const headerOptions = {
@@ -25,7 +25,7 @@ export async function downloadMedia(imageMessage: WebhookMessage) {
         'User-Agent': 'curl/7.84.0',
         'Accept': '*/*',
     }
-    const firstResponse: Response = await fetch(`https://graph.facebook.com/v15.0/${imageDetails.id}`, { headers: headerOptions })
+    const firstResponse: Response = await fetch(`https://graph.facebook.com/v15.0/${mediaDetails.id}`, { headers: headerOptions })
 
     if (!firstResponse.ok) {
         const responseText = await firstResponse.text()
@@ -54,7 +54,7 @@ export async function downloadMedia(imageMessage: WebhookMessage) {
         const { data, error } = await supabase
             .storage
             .from('media')
-            .upload(`${imageMessage.from}/${imageDetails.id}.${extension}`, mediaBody, {
+            .upload(`${imageMessage.from}/${mediaDetails.id}.${extension}`, mediaBody, {
                 cacheControl: '3600',
                 contentType: mediaResponse.headers['content-type'],
                 upsert: false,
