@@ -39,7 +39,7 @@ export default function ContactChat({ params }: { params: { wa_id: string } }) {
     useEffect(() => {
         console.log('params.wa_id', params.wa_id)
         const channel = supabase
-            .channel('realtime contacts')
+            .channel('last-message-received-channel')
             .on<Contact>('postgres_changes', {
                 event: 'UPDATE',
                 schema: 'public',
