@@ -8,7 +8,6 @@ export default function ReceivedVideoMessageUI({ message }: { message: DBMessage
     const [videoUrl, setVideoUrl] = useState<string | null>(null);
     useEffect(() => {
         if (message.media_url) {
-            console.log('generating signed url')
             supabase
                 .storage
                 .from('media')

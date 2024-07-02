@@ -78,7 +78,6 @@ export default function MessageListClient({ from }: { from: string }) {
                     table: DBTables.Messages,
                     filter: `created_at=gte.${stateMessages[0].created_at}`
                 }, payload => {
-                    console.log('payload.new', payload.new);
                     const messageIndexToUpdate = stateMessages.findIndex((m) => m.wam_id == payload.new.wam_id)
                     if (messageIndexToUpdate) {
                         const withDates = addDateToMessages([payload.new])

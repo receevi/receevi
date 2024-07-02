@@ -7,7 +7,6 @@ import { DownloadIcon, FileIcon } from "lucide-react";
 export default function ReceivedDocumentMessageUI({ message }: { message: DBMessage }) {
     const [supabase] = useState(() => createClient())
     const [documentUrl, setDocumentUrl] = useState<string | null>(null);
-    console.log('file', message)
     useEffect(() => {
         if (message.media_url) {
             supabase

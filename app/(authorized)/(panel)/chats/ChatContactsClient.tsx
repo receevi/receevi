@@ -14,40 +14,47 @@ export default function ChatContactsClient({ contacts }: { contacts: Contact[] }
             .on<Contact>('postgres_changes', { event: '*', schema: 'public', table: DBTables.Contacts }, payload => {
                 switch (payload.eventType) {
                     case "INSERT":
-                        contactsState.splice(0, 0, payload.new)
-                        setContacts([...contactsState])
+                        setContacts(contactsState => {
+                            contactsState.splice(0, 0, payload.new)
+                            return [...contactsState]
+                        })
                         break;
                     case "UPDATE":
-                        const indexOfItem = contactsState.findIndex((contact: Contact) => contact.wa_id == payload.old.wa_id)
-                        if (indexOfItem !== -1) {
-                            contactsState[indexOfItem] = payload.new
-                            contactsState.sort((a: Contact, b: Contact) => {
-                                if (!a.last_message_at || !b.last_message_at) {
+                        setContacts(contactsState => {
+                            const indexOfItem = contactsState.findIndex((contact: Contact) => contact.wa_id == payload.old.wa_id)
+                            if (indexOfItem !== -1) {
+                                contactsState[indexOfItem] = payload.new
+                                contactsState.sort((a: Contact, b: Contact) => {
+                                    if (!a.last_message_at || !b.last_message_at) {
+                                        return 0;
+                                    }
+                                    const aDate = new Date(a.last_message_at)
+                                    const bDate = new Date(b.last_message_at)
+                                    if (aDate > bDate) {
+                                        return -1;
+                                    } else if (bDate > aDate) {
+                                        return 1;
+                                    }
                                     return 0;
-                                }
-                                const aDate = new Date(a.last_message_at)
-                                const bDate = new Date(b.last_message_at)
-                                if (aDate > bDate) {
-                                    return -1;
-                                } else if (bDate > aDate) {
-                                    return 1;
-                                }
-                                return 0;
-                            })
-                            setContacts([...contactsState])
-                        } else {
-                            console.warn(`Could not find contact to update contact for id: ${payload.old.wa_id}`)
-                        }
+                                })
+                            } else {
+                                console.warn(`Could not find contact to update contact for id: ${payload.old.wa_id}`)
+                            }
+                            return [...contactsState]
+                        })
                         break;
                     case "DELETE":
-                        const newContacts = contactsState.filter((item: Contact) => item.wa_id != payload.old.wa_id)
-                        setContacts(newContacts)
+                        setContacts(contactsState => {
+                            const newContacts = contactsState.filter((item: Contact) => item.wa_id != payload.old.wa_id)
+                            return [...newContacts];
+                        })
                         break;
                 }
             })
             .subscribe()
         return () => { supabase.removeChannel(channel) };
-    }, [supabase, contactsState, setContacts])
+    }, [supabase, setContacts])
+
     return (
         <div className="flex flex-col">
             {contactsState && contactsState.map(contact => {

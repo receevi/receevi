@@ -39,7 +39,7 @@ export default function ContactChat({ params }: { params: { wa_id: string } }) {
     useEffect(() => {
         console.log('params.wa_id', params.wa_id)
         const channel = supabase
-            .channel('schema-db-changes')
+            .channel('realtime contacts')
             .on<Contact>('postgres_changes', {
                 event: 'UPDATE',
                 schema: 'public',
@@ -47,7 +47,6 @@ export default function ContactChat({ params }: { params: { wa_id: string } }) {
                 filter: `wa_id=eq.${params.wa_id}`
             }, payload => {
                 if (payload.new.last_message_received_at) {
-                    console.log('payload', payload.new.last_message_at)
                     setLastMessageReceivedAt(new Date(payload.new.last_message_received_at))
                 }
             })
