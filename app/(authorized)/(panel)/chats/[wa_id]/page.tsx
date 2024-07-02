@@ -68,7 +68,7 @@ export default function ContactChat({ params }: { params: { wa_id: string } }) {
                         } else {
                             return (
                                 <div className="p-4 bg-white flex flex-row gap-4">
-                                    <span>You can only send a message within 24 hours of the last customer interaction. Please wait until the customer reaches out to you again or send a template message.</span>
+                                    <span>You can only send a message within 24 hours of the last customer interaction. Please wait until the customer reaches out to you again or send a template message. <a className="text-blue-500" href="https://developers.facebook.com/docs/whatsapp/cloud-api/guides/send-messages#customer-service-windows" target="_blank" rel="noopener noreferrer">Read more</a></span>
                                     <Button className="min-w-fit">Send template message</Button>
                                 </div>
                             )
