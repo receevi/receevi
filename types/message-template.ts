@@ -31,7 +31,8 @@ export type MessageTemplateHeader = {
     format: "TEXT" | "DOCUMENT" | "IMAGE" | "VIDEO";
     text: string;
     example?: {
-        header_text: string[];
+        header_text?: string[];
+        header_handle?: string[];
     };
 };
 
@@ -54,7 +55,7 @@ export type MessageTemplateButtons = {
 };
 
 export type MessageTemplateButton = {
-    type: "URL" | "QUICK_REPLY";
+    type: "URL" | "QUICK_REPLY" | "PHONE_NUMBER" | "COPY_CODE";
     text: string;
     url?: string;
     example?: string[];
