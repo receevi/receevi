@@ -3,8 +3,10 @@
 import TWLoader from "@/components/TWLoader";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuShortcut, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import TemplateSelection from "@/components/ui/template-selection";
+import { TemplateRequest } from "@/types/message-template-request";
 import { Image as ImageIcon, File as FileIcon, Paperclip, MessageSquareDashed, XCircle } from "lucide-react";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
 
 export type FileType = 'image' | 'video' | 'file' | undefined
 
@@ -16,12 +18,14 @@ type SendMessageUIProps = {
     setMessage: Dispatch<SetStateAction<string>>
     setFileType: Dispatch<SetStateAction<FileType | undefined>>
     setFile: Dispatch<SetStateAction<File | undefined>>
+    onTemplateMessageSend: (req: TemplateRequest) => Promise<void>
 }
 
-export default function SendMessageUI({ message, fileType, file, setMessage, setFile, setFileType, onMessageSend }: SendMessageUIProps) {
+export default function SendMessageUI({ message, fileType, file, setMessage, setFile, setFileType, onMessageSend, onTemplateMessageSend }: SendMessageUIProps) {
     const [messageSendInProgress, setMessageSendInProgress] = useState<boolean>(false);
     const [mediaSrcUrl, setMediaSrcUrl] = useState<string | undefined>()
     const [fileName, setFileName] = useState<string | undefined>()
+    const messageTemplateOpenerButton = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
         if (!file) {
@@ -69,10 +73,18 @@ export default function SendMessageUI({ message, fileType, file, setMessage, set
         setFileName(undefined)
         setFile(undefined)
     }
+    const onTemplateSubmit = useCallback(async (req: TemplateRequest) => {
+        setMessageSendInProgress(true)
+        try {
+            await onTemplateMessageSend(req)
+        } finally {
+            setMessageSendInProgress(false)
+        }
+    }, [setMessageSendInProgress, onTemplateMessageSend])
 
     return (
         <>
-            {(typeof fileType !== 'undefined' ) && <div className="bg-slate-200 p-4">
+            {(typeof fileType !== 'undefined') && <div className="bg-slate-200 p-4">
                 <div className="inline-block relative">
                     {fileType === 'image' && mediaSrcUrl && <img className="h-48 w-48 inline-block object-cover rounded-md border border-black" src={mediaSrcUrl} />}
                     {fileType === 'video' && mediaSrcUrl && <video className="h-48 w-48 inline-block object-cover rounded-md border border-black" controls src={mediaSrcUrl} />}
@@ -106,13 +118,16 @@ export default function SendMessageUI({ message, fileType, file, setMessage, set
                             <ImageIcon className="mr-2 h-4 w-4" />
                             <span>Photos & videos</span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => messageTemplateOpenerButton.current?.click()}>
                             <MessageSquareDashed className="mr-2 h-4 w-4" />
                             <span>Template message</span>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
 
                 </DropdownMenu>
+                <TemplateSelection onTemplateSubmit={onTemplateSubmit}>
+                    <Button ref={messageTemplateOpenerButton} className="hidden">Open message template</Button>
+                </TemplateSelection>
                 <Button type="submit" className="w-32" disabled={messageSendInProgress}>{messageSendInProgress ? <TWLoader className="w-4 h-4" /> : 'Send'}</Button>
             </form>
         </>

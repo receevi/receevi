@@ -92,7 +92,6 @@ export default function TemplateSelection({ children, onTemplateSubmit }: { chil
     const [isTemplatesLoading, setTemplatesLoading] = useState<boolean>(false);
     const [selectedTemplate, setSelectedTemplate] = useState<MessageTemplate | undefined>();
     const [step, setStep] = useState<number>(0);
-    const [parameters, setParameters] = useState<MessageParameters | undefined>();
     const [totalSteps, _] = useState(2)
     const [isNextEnabled, setNextEnabled] = useState<boolean>(false);
     const [isPreviousEnabled, setPreviousEnabled] = useState<boolean>(false);
@@ -104,9 +103,9 @@ export default function TemplateSelection({ children, onTemplateSubmit }: { chil
         setTemplates(data as (MessageTemplate[] | null))
     }, [supabase, setTemplates])
 
-    useEffect(() => {
-        formSubmitted.current = false
-    }, [parameters])
+    // useEffect(() => {
+    //     formSubmitted.current = false
+    // }, [parameters])
 
     useEffect(() => {
         const asyncFunc = async () => {
@@ -128,9 +127,6 @@ export default function TemplateSelection({ children, onTemplateSubmit }: { chil
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
-        defaultValues: {
-            body: parameters?.body
-        },
         mode: 'onChange'
     })
 
@@ -150,8 +146,8 @@ export default function TemplateSelection({ children, onTemplateSubmit }: { chil
     })
 
     useEffect(() => {
+        formSubmitted.current = false
         if (selectedTemplate?.components) {
-            const params: MessageParameters = {}
             for (const component of selectedTemplate?.components) {
                 switch (component.type) {
                     case "HEADER": {
@@ -240,21 +236,13 @@ export default function TemplateSelection({ children, onTemplateSubmit }: { chil
                     }
                 }
             }
-            setParameters(params)
-        } else {
-            console.warn('selectedTemplate?.components is falsy', selectedTemplate?.components)
         }
     }, [selectedTemplate, replaceBodyFields, replaceHeaderFields, replaceButtonFields])
 
-    function selectTemplate(template: MessageTemplate) {
-        setSelectedTemplate(template)
-    }
-
     const resetTemplatePopup = useCallback(() => {
-        form.reset()
         setSelectedTemplate(undefined)
         setStep(0)
-    }, [form, setSelectedTemplate, setStep])
+    }, [setSelectedTemplate, setStep])
 
     const onSubmit = useCallback((values: z.infer<typeof formSchema>) => {
         const request: TemplateRequest = {
@@ -321,6 +309,7 @@ export default function TemplateSelection({ children, onTemplateSubmit }: { chil
     }, [selectedTemplate, onTemplateSubmit, resetTemplatePopup])
 
     useEffect(() => {
+        console.log('hello')
         switch (step) {
             case 0: {
                 setNextEnabled(!!selectedTemplate)
@@ -328,12 +317,21 @@ export default function TemplateSelection({ children, onTemplateSubmit }: { chil
                 break;
             }
             case 1: {
+                console.log('form.formState.isValid', form.formState.isValid)
                 setNextEnabled(form.formState.isValid)
                 setPreviousEnabled(true)
                 break;
             }
         }
-    }, [step, setNextEnabled, setPreviousEnabled, selectedTemplate, parameters, form.formState.isValid])
+    }, [step, setNextEnabled, setPreviousEnabled, selectedTemplate, form.formState.isValid])
+
+    // useEffect(() => {
+    //     const interval = setInterval(() => {
+    //         console.log('form', form)
+    //         console.log('form.formState.isValid', form.formState.isValid)
+    //     }, 2000)
+    //     return () => clearInterval(interval)
+    // }, [])
 
     const onFinish = useCallback(() => {
         if (!formSubmitted.current) {
@@ -395,7 +393,7 @@ export default function TemplateSelection({ children, onTemplateSubmit }: { chil
                                         {templates?.map(template => {
                                             return (
                                                 <div key={template.id} className={cn("flex items-center border-2 border-transparent rounded-lg", selectedTemplate?.id == template.id ? 'border-black' : '')}>
-                                                    <button className="text-sm bg-white shadow border rounded-lg p-2 text-left w-full" onClick={() => selectTemplate(template)}>
+                                                    <button className="text-sm bg-white shadow border rounded-lg p-2 text-left w-full" onClick={() => setSelectedTemplate(template)}>
                                                         <ReceivedTemplateMessageUI message={{ template: template, id: template.id, timestamp: '', type: 'template' }} />
                                                     </button>
                                                 </div>
@@ -552,7 +550,6 @@ export default function TemplateSelection({ children, onTemplateSubmit }: { chil
                         :
                         <Button disabled={!isNextEnabled} onClick={onNextClick}>Next</Button>
                     }
-                    {/* <Button disabled={!isNextEnabled} onClick={onNextClick}>{step === totalSteps - 1 ? 'Finish' : 'Next'}</Button> */}
                 </DialogFooter>
             </DialogContent>
         </Dialog>
