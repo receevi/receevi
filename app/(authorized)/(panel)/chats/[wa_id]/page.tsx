@@ -4,12 +4,14 @@ import { DBTables } from "@/lib/enums/Tables";
 import ChatHeader from "./ChatHeader";
 import MessageListClient from "./MessageListClient";
 import SendMessageWrapper from "./SendMessageWrapper";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase-browser";
 import ContactBrowserFactory from "@/lib/repositories/contacts/ContactBrowserFactory";
 import { Contact } from "@/types/contact";
 import { Button } from "@/components/ui/button";
 import TemplateSelection from "@/components/ui/template-selection";
+import { TemplateRequest } from "@/types/message-template-request";
+import TWLoader from "@/components/TWLoader";
 
 export const revalidate = 0
 
@@ -18,6 +20,8 @@ export default function ContactChat({ params }: { params: { wa_id: string } }) {
     const [lastMessageReceivedAt, setLastMessageReceivedAt] = useState<Date | undefined>()
     const [ contactRepository ] = useState(() => ContactBrowserFactory.getInstance())
     const [ supabase ] = useState(() => createClient())
+    const [ messageTemplateSending, setMessageTemplateSending ] = useState<boolean>(false);
+
     useEffect(() => {
         contactRepository.getContactById(params.wa_id).then((contact) => {
             setLastMessageReceivedAt(contact.last_message_received_at ? new Date(contact.last_message_received_at) : undefined)
@@ -56,6 +60,26 @@ export default function ContactChat({ params }: { params: { wa_id: string } }) {
         return () => { supabase.removeChannel(channel) }
     }, [supabase, params.wa_id])
 
+    const onTemplateSubmit = useCallback(async (req: TemplateRequest) => {
+        setMessageTemplateSending(true)
+        const formData = new FormData();
+        formData.set('to', params.wa_id);
+        formData.set('template', JSON.stringify(req));
+        try {
+            const response = await fetch('/api/sendMessage', {
+                method: 'POST',
+                body: formData,
+            })
+            if (response.status === 200) {
+                console.log('successful')
+            } else {
+                throw new Error(`Request failed with status code ${response.status}`);
+            }
+        } finally {
+            setMessageTemplateSending(false)
+        }
+    }, [params.wa_id, setMessageTemplateSending])
+
     return (
         <div className="bg-conversation-panel-background h-full relative">
             <div className="bg-chat-img h-full w-full absolute bg-[length:412.5px_749.25px] opacity-40"></div>
@@ -70,8 +94,11 @@ export default function ContactChat({ params }: { params: { wa_id: string } }) {
                             return (
                                 <div className="p-4 bg-white flex flex-row gap-4 items-center">
                                     <span className="text-sm">You can only send a message within 24 hours of the last customer interaction. Please wait until the customer reaches out to you again or send a template message. <a className="text-blue-500" href="https://developers.facebook.com/docs/whatsapp/cloud-api/guides/send-messages#customer-service-windows" target="_blank" rel="noopener noreferrer">Read more</a></span>
-                                    <TemplateSelection>
-                                        <Button className="min-w-fit">Send template message</Button>
+                                    <TemplateSelection onTemplateSubmit={onTemplateSubmit}>
+                                        <Button disabled={messageTemplateSending} className="min-w-fit">
+                                            {messageTemplateSending && <><TWLoader className="w-5 h-5"/> &nbsp;&nbsp; </>}
+                                            Send template message
+                                        </Button>
                                     </TemplateSelection>
                                 </div>
                             )

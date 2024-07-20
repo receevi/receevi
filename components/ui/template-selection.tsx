@@ -1,5 +1,6 @@
 import {
     Dialog,
+    DialogClose,
     DialogContent,
     DialogDescription,
     DialogFooter,
@@ -11,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { MessageTemplate } from "@/types/message-template";
 import { createClient } from "@/utils/supabase-browser";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback, useEffect, useState } from "react";
+import { Dispatch, useCallback, useEffect, useRef, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import ReceivedTemplateMessageUI from "../../app/(authorized)/(panel)/chats/[wa_id]/ReceivedTemplateMessageUI";
@@ -20,35 +21,7 @@ import { Button } from "./button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./form";
 import { Input } from "./input";
 import { Label } from "./label";
-
-
-type MediaParameter = {
-    link: string
-}
-
-type HeaderParameter = {
-    type: 'text' | 'image' | 'video' | 'document'
-    key: string
-    text?: string
-    image?: MediaParameter
-    video?: MediaParameter
-    document?: MediaParameter
-    value: string
-}
-
-type TextParameter = {
-    type: 'text'
-    key: string
-    value: string
-}
-
-type ButtonParameter = {
-    type: 'url' | 'otp'
-    index: number
-    display_text: string
-    url?: string
-    value: string
-}
+import { ButtonParameter, TemplateRequest, HeaderParameter, TextParameter, RequestComponent } from "@/types/message-template-request";
 
 const bodyVariableSchema = z.array(
     z.object({
@@ -68,28 +41,29 @@ const headerVariableSchema = z.array(
     )
 )
 
+const buttonVariableSchema = z.array(
+    z.object({
+        index: z.number(),
+        payload: z.string().min(1, { message: 'Payload text is required' }),
+        buttonText: z.string(),
+    }).and(
+        z.object({
+            sub_type: z.enum(['url']),
+            url: z.string(),
+        }).or(z.object({
+            sub_type: z.enum(['quick_reply', 'copy_code']),
+        }))
+    )
+)
+
 type BodyArg = z.infer<typeof bodyVariableSchema>[number];
 type HeaderArg = z.infer<typeof headerVariableSchema>[number];
+type ButtonPayload = z.infer<typeof buttonVariableSchema>[number];
 
 type MessageParameters = {
     header?: HeaderArg[]
     body?: BodyArg[]
     buttons?: ButtonParameter[]
-}
-
-function getParameterList(messageText: string): TextParameter[] {
-    const varRegex = /\{\{\d+\}\}/g
-    const allMatches = messageText.matchAll(varRegex)
-    const params = []
-    for (const match of allMatches) {
-        const param: TextParameter = {
-            type: 'text',
-            key: match[0],
-            value: '',
-        }
-        params.push(param)
-    }
-    return params;
 }
 
 function getVars(messageText: string) {
@@ -109,9 +83,10 @@ function getVars(messageText: string) {
 const formSchema = z.object({
     body: bodyVariableSchema,
     header: headerVariableSchema,
+    button: buttonVariableSchema,
 })
 
-export default function TemplateSelection({ children }: { children: React.ReactElement }) {
+export default function TemplateSelection({ children, onTemplateSubmit }: { children: React.ReactElement, onTemplateSubmit: Dispatch<TemplateRequest> }) {
     const [supabase] = useState(() => createClient())
     const [templates, setTemplates] = useState<MessageTemplate[] | null>(null);
     const [isTemplatesLoading, setTemplatesLoading] = useState<boolean>(false);
@@ -121,13 +96,17 @@ export default function TemplateSelection({ children }: { children: React.ReactE
     const [totalSteps, _] = useState(2)
     const [isNextEnabled, setNextEnabled] = useState<boolean>(false);
     const [isPreviousEnabled, setPreviousEnabled] = useState<boolean>(false);
+    const variableForm = useRef<HTMLFormElement | null>(null);
+    const formSubmitted = useRef<boolean>(false);
 
     const fetchMessageTemplates = useCallback(async function () {
         const { data } = await supabase.from('message_template').select('*').eq('status', 'APPROVED').order('id', { ascending: false })
-        console.log('templates', data)
-        console.log('h', data!![0].components);
         setTemplates(data as (MessageTemplate[] | null))
     }, [supabase, setTemplates])
+
+    useEffect(() => {
+        formSubmitted.current = false
+    }, [parameters])
 
     useEffect(() => {
         const asyncFunc = async () => {
@@ -162,6 +141,11 @@ export default function TemplateSelection({ children }: { children: React.ReactE
 
     const { fields: bodyFields, replace: replaceBodyFields } = useFieldArray({
         name: 'body',
+        control: form.control
+    })
+
+    const { fields: buttonFields, replace: replaceButtonFields } = useFieldArray({
+        name: 'button',
         control: form.control
     })
 
@@ -217,33 +201,42 @@ export default function TemplateSelection({ children }: { children: React.ReactE
                         break;
                     }
                     case "BUTTONS": {
-                        const buttonParams: ButtonParameter[] = []
+                        const buttonPayloads: ButtonPayload[] = []
                         for (const [index, button] of component.buttons.entries()) {
                             switch (button.type) {
                                 case "URL": {
                                     if (button.url?.endsWith('{{1}}')) {
-                                        buttonParams.push({
-                                            type: 'url',
-                                            display_text: button.text,
-                                            index: index,
+                                        buttonPayloads.push({
+                                            sub_type: 'url',
                                             url: button.url.replace('{{1}}', ''),
-                                            value: '',
+                                            index: index,
+                                            payload: '',
+                                            buttonText: button.text,
                                         })
                                     }
                                     break;
-                                }
+                                };
                                 case "COPY_CODE": {
-                                    buttonParams.push({
-                                        type: 'otp',
-                                        display_text: button.text,
+                                    buttonPayloads.push({
+                                        sub_type: 'copy_code',
                                         index: index,
-                                        value: '',
+                                        buttonText: button.text,
+                                        payload: '',
                                     })
                                     break;
-                                }
+                                };
+                                case "QUICK_REPLY": {
+                                    buttonPayloads.push({
+                                        sub_type: 'quick_reply',
+                                        index: index,
+                                        buttonText: button.text,
+                                        payload: '',
+                                    })
+                                    break;
+                                };
                             }
                         }
-                        params.buttons = buttonParams
+                        replaceButtonFields(buttonPayloads)
                     }
                 }
             }
@@ -251,29 +244,90 @@ export default function TemplateSelection({ children }: { children: React.ReactE
         } else {
             console.warn('selectedTemplate?.components is falsy', selectedTemplate?.components)
         }
-    }, [selectedTemplate, replaceBodyFields, replaceHeaderFields])
+    }, [selectedTemplate, replaceBodyFields, replaceHeaderFields, replaceButtonFields])
 
     function selectTemplate(template: MessageTemplate) {
         setSelectedTemplate(template)
     }
 
+    const resetTemplatePopup = useCallback(() => {
+        form.reset()
+        setSelectedTemplate(undefined)
+        setStep(0)
+    }, [form, setSelectedTemplate, setStep])
+
     const onSubmit = useCallback((values: z.infer<typeof formSchema>) => {
-        // Do something with the form values.
-        // ✅ This will be type-safe and validated.
-        console.log('form submit', values)
-    }, [])
+        const request: TemplateRequest = {
+            name: selectedTemplate?.name!!,
+            language: {
+                code: selectedTemplate?.language!!
+            },
+            components: []
+        }
+        const headerArgs: HeaderParameter[] = values.header.map(h => {
+            if (h.type === 'text') {
+                return {
+                    type: 'text',
+                    text: h.text
+                }
+            } else if (h.type === 'image') {
+                return {
+                    type: 'image',
+                    image: { link: h.link }
+                }
+            } else if (h.type === 'video') {
+                return {
+                    type: 'video',
+                    video: { link: h.link }
+                }
+            } else if (h.type === 'document') {
+                return {
+                    type: 'document',
+                    document: { link: h.link }
+                }
+            }
+        }) as any
+        request.components.push({
+            type: "header",
+            parameters: headerArgs
+        })
+        const bodyArgs: TextParameter[] = values.body.map((b) => {
+            return {
+                type: 'text',
+                text: b.text
+            }
+        })
+        request.components.push({
+            type: "body",
+            parameters: bodyArgs
+        })
+        const buttonPayloads: RequestComponent[] = values.button.map(b => {
+            return {
+                type: 'button',
+                sub_type: b.sub_type,
+                index: b.index.toString(),
+                parameters: [
+                    {
+                        type: 'payload',
+                        payload: b.payload
+                    }
+                ]
+            }
+        })
+        request.components.push(...buttonPayloads)
+        onTemplateSubmit(request)
+        resetTemplatePopup()
+        console.log('request', request)
+    }, [selectedTemplate, onTemplateSubmit, resetTemplatePopup])
 
     useEffect(() => {
-        console.log('here in effect', step)
         switch (step) {
             case 0: {
-                console.log('selectedTemplate from effect', selectedTemplate)
                 setNextEnabled(!!selectedTemplate)
                 setPreviousEnabled(false)
                 break;
             }
             case 1: {
-                console.log('form.formState.isValid', form.formState.isValid)
                 setNextEnabled(form.formState.isValid)
                 setPreviousEnabled(true)
                 break;
@@ -282,15 +336,11 @@ export default function TemplateSelection({ children }: { children: React.ReactE
     }, [step, setNextEnabled, setPreviousEnabled, selectedTemplate, parameters, form.formState.isValid])
 
     const onFinish = useCallback(() => {
-        form.handleSubmit(onSubmit)()
-    }, [form, onSubmit])
-
-    // useEffect(() => {
-    //     const interval = setInterval(() => {
-    //         console.log(form.formState.errors)
-    //     }, 1000)
-    //     return () => clearInterval(interval)
-    // }, [form])
+        if (!formSubmitted.current) {
+            variableForm.current?.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }))
+            formSubmitted.current = true;
+        }
+    }, [variableForm, formSubmitted])
 
     const onNextClick = useCallback(() => {
         setStep(s => {
@@ -369,7 +419,7 @@ export default function TemplateSelection({ children }: { children: React.ReactE
                                     </div>
                                     <div className="flex flex-col gap-4 flex-auto overflow-y-auto">
                                         <Form {...form}>
-                                            <form onSubmit={form.handleSubmit(onSubmit)}>
+                                            <form ref={variableForm} onSubmit={form.handleSubmit(onSubmit)}>
                                                 {(() => {
                                                     if (headerFields.length) {
                                                         return (
@@ -378,8 +428,9 @@ export default function TemplateSelection({ children }: { children: React.ReactE
                                                                 <div className="ml-4 gap-2 flex flex-col">
                                                                     {headerFields.map((headerField, index) => {
                                                                         if (headerField.type === 'text') {
+                                                                            const { ref, ...formFieldProps } = form.register(`header.${index}.text` as const)
                                                                             return (
-                                                                                <FormField key={headerField.id} {...form.register(`header.${index}.text` as const)} render={(({ field }) => {
+                                                                                <FormField key={headerField.id} {...formFieldProps} render={(({ field }) => {
                                                                                     return (
                                                                                         <FormItem>
                                                                                             <FormLabel>Variable *</FormLabel>
@@ -392,8 +443,9 @@ export default function TemplateSelection({ children }: { children: React.ReactE
                                                                                 })} />
                                                                             )
                                                                         } else if (headerField.type === 'image' || headerField.type === 'video' || headerField.type === 'document') {
+                                                                            const { ref, ...formFieldProps } = form.register(`header.${index}.link` as const)
                                                                             return (
-                                                                                <FormField key={headerField.id} {...form.register(`header.${index}.link` as const)} render={(({ field }) => {
+                                                                                <FormField key={headerField.id} {...formFieldProps} render={(({ field }) => {
                                                                                     return (
                                                                                         <FormItem>
                                                                                             <FormLabel>Link to media *</FormLabel>
@@ -420,8 +472,9 @@ export default function TemplateSelection({ children }: { children: React.ReactE
                                                                 <span className="text-lg">Body</span>
                                                                 <div className="ml-4 gap-2 flex flex-col">
                                                                     {bodyFields.map((bodyField, index) => {
+                                                                        const { ref, ...formFieldProps } = form.register(`body.${index}.text` as const)
                                                                         return (
-                                                                            <FormField key={bodyField.id} {...form.register(`body.${index}.text` as const)} render={(({ field }) => {
+                                                                            <FormField key={bodyField.id} {...formFieldProps} render={(({ field }) => {
                                                                                 return (
                                                                                     <FormItem>
                                                                                         <FormLabel>Variable {bodyField.argId} *</FormLabel>
@@ -440,41 +493,48 @@ export default function TemplateSelection({ children }: { children: React.ReactE
                                                     }
                                                 })()}
 
-                                                {/* {(() => {
-                                            if (parameters?.buttons?.length) {
-                                                return (
-                                                    <div>
-                                                        <span className="text-lg">Body</span>
-                                                        <div className="ml-4 gap-2 flex flex-col">
-                                                            {parameters.buttons.map((p) => {
-                                                                return (
-                                                                    <div key={p.index}>
-                                                                        <Label htmlFor="button-variable-1">{p.display_text}</Label>
-                                                                        {(() => {
-                                                                            if (p.type === 'url') {
+                                                {(() => {
+                                                    if (buttonFields.length) {
+                                                        return (
+                                                            <div>
+                                                                <span className="text-lg">Button</span>
+                                                                <div className="ml-4 gap-2 flex flex-col">
+                                                                    {buttonFields.map((buttonField, index) => {
+                                                                        const { ref, ...formFieldProps } = form.register(`button.${index}.payload` as const)
+                                                                        return (
+                                                                            <FormField key={buttonField.id} {...formFieldProps} render={(({ field }) => {
+                                                                                if (buttonField.sub_type === 'url') {
+                                                                                    return (
+                                                                                        <FormItem>
+                                                                                            <FormLabel>{buttonField.buttonText} payload *</FormLabel>
+                                                                                            <div>
+                                                                                                <span>{buttonField.url}</span>
+                                                                                                &nbsp;&nbsp;
+                                                                                                <FormControl>
+                                                                                                    <Input className="inline-block w-40" required {...field} />
+                                                                                                </FormControl>
+                                                                                            </div>
+                                                                                            <FormMessage />
+                                                                                        </FormItem>
+                                                                                    )
+                                                                                }
                                                                                 return (
-                                                                                    <div>
-                                                                                        <span>{p.url}</span>
-                                                                                        &nbsp;&nbsp;
-                                                                                        <Input name="button-variable-1" className="w-32 inline-block" value={p.value} onChange={e => {
-                                                                                            p.value = e.target.value; setParameters(structuredClone((parameters)))
-                                                                                        }} />
-                                                                                    </div>
+                                                                                    <FormItem>
+                                                                                        <FormLabel>{buttonField.buttonText} payload *</FormLabel>
+                                                                                        <FormControl>
+                                                                                            <Input required {...field} />
+                                                                                        </FormControl>
+                                                                                        <FormMessage />
+                                                                                    </FormItem>
                                                                                 )
-                                                                            } else {
-                                                                                return <Input name="button-variable-1" value={p.value} onChange={e => {
-                                                                                    p.value = e.target.value; setParameters(structuredClone((parameters)))
-                                                                                }} />
-                                                                            }
-                                                                        })()}
-                                                                    </div>
-                                                                )
-                                                            })}
-                                                        </div>
-                                                    </div>
-                                                )
-                                            }
-                                        })()} */}
+                                                                            })} />
+                                                                        )
+                                                                    })}
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                    }
+                                                })()}
                                             </form>
                                         </Form>
                                     </div>
@@ -485,7 +545,14 @@ export default function TemplateSelection({ children }: { children: React.ReactE
                 })()}
                 <DialogFooter>
                     <Button disabled={!isPreviousEnabled} onClick={onPreviousClick}>Previous</Button>
-                    <Button disabled={!isNextEnabled} onClick={onNextClick}>{step === totalSteps - 1 ? 'Finish' : 'Next'}</Button>
+                    {step === totalSteps - 1 ?
+                        <DialogClose asChild>
+                            <Button disabled={!isNextEnabled} onClick={onNextClick}>Finish</Button>
+                        </DialogClose>
+                        :
+                        <Button disabled={!isNextEnabled} onClick={onNextClick}>Next</Button>
+                    }
+                    {/* <Button disabled={!isNextEnabled} onClick={onNextClick}>{step === totalSteps - 1 ? 'Finish' : 'Next'}</Button> */}
                 </DialogFooter>
             </DialogContent>
         </Dialog>

@@ -9,25 +9,31 @@ function MessageTemplateHeaderComp(props: { component: MessageTemplateHeader }) 
                 <div className="font-medium pb-2">{props.component.text}</div>
             )
         case "DOCUMENT":
+            const actualDocumentLink = props.component.document?.link
+            const documentLinkToView = actualDocumentLink || props.component.example?.header_handle && props.component.example?.header_handle[0] || ''
             return (
                 <div className="bg-[#00000011] p-2 rounded-md flex flex-row  items-center justify-between">
                     <div className="flex flex-row items-center gap-2">
                         <FileIcon />
                         <span>Example document</span>
                     </div>
-                    <a href={props.component.example?.header_handle && props.component.example?.header_handle[0] || ''} target="_blank"><DownloadIcon /></a>
+                    <a href={documentLinkToView} target="_blank"><DownloadIcon /></a>
                 </div>
             )
         case "IMAGE":
+            const actualImageLink = props.component.image?.link
+            const imageLinkToView = actualImageLink || props.component.example?.header_handle && props.component.example?.header_handle[0] || ''
             return (
                 <div className="font-medium pb-2">
-                    <img className="h-32 object-cover w-full" src={props.component.example?.header_handle && props.component.example?.header_handle[0] || ''} />
+                    <img className="h-32 object-cover w-full" src={imageLinkToView} />
                 </div>
             )
         case "VIDEO":
+            const actualVideoLink = props.component.video?.link
+            const videoLinkToView = actualVideoLink || props.component.example?.header_handle && props.component.example?.header_handle[0] || ''
             return (
                 <div className="font-medium pb-2">
-                    <video className="h-32 object-cover w-full" controls src={props.component.example?.header_handle && props.component.example?.header_handle[0] || ''} />
+                    <video className="h-32 object-cover w-full" controls src={videoLinkToView || ''} />
                 </div>
             )
         default:
@@ -109,19 +115,20 @@ function MessageTemplateButtonsComp(props: { component: MessageTemplateButtons }
 }
 
 export default function ReceivedTemplateMessageUI(props: { message: TemplateMessage }) {
-    return props.message.template.components.map((component, index) => {
-        switch (component.type) {
-            case 'HEADER':
-                return <MessageTemplateHeaderComp key={index} component={component} />
-            case 'BODY':
-                return <MessageTemplateBodyComp key={index} component={component} />
-            case 'FOOTER':
-                return <MessageTemplateFooterComp key={index} component={component} />
-            case 'BUTTONS':
-                return <MessageTemplateButtonsComp key={index} component={component} />
-        }
-        return (
-            <div key={index}>hello</div>
-        )
-    })
+    return (
+        <div className="max-w-sm">
+            {props.message.template.components.map((component, index) => {
+                switch (component.type) {
+                    case 'HEADER':
+                        return <MessageTemplateHeaderComp key={index} component={component} />
+                    case 'BODY':
+                        return <MessageTemplateBodyComp key={index} component={component} />
+                    case 'FOOTER':
+                        return <MessageTemplateFooterComp key={index} component={component} />
+                    case 'BUTTONS':
+                        return <MessageTemplateButtonsComp key={index} component={component} />
+                }
+            })}
+        </div>
+    )
 }
