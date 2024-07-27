@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { DBTables } from "@/lib/enums/Tables";
 import { createServiceClient } from "@/lib/supabase/service-client";
 import { createClient } from "@/utils/supabase-server";
-import { TemplateRequest } from "@/types/message-template-request";
+import { TemplateRequest, TextParameter } from "@/types/message-template-request";
 import { MessageTemplate, MessageTemplateComponent } from "@/types/message-template";
 
 type Media = {
@@ -71,7 +71,7 @@ function replaceVarsInTemplate(components: MessageTemplateComponent[], vars: Tem
             case 'BODY':
                 const bodyVarValue = vars.find((v) => v.type === 'body')
                 if (bodyVarValue) {
-                    c.text = regexSearchTextReplace(c.text, bodyVarValue.parameters)
+                    c.text = regexSearchTextReplace(c.text, bodyVarValue.parameters as TextParameter[])
                     console.log('c.text', c.text)
                 }
                 break;
@@ -80,8 +80,8 @@ function replaceVarsInTemplate(components: MessageTemplateComponent[], vars: Tem
                 if (buttonPayloads) {
                     c.buttons.forEach((b, bIndex) => {
                         if (b.type === 'URL' && b.url.endsWith('{{1}}')) {
-                            const payloadObj = buttonPayloads.find(x => Number.parseInt(x.index) === bIndex)
-                            if (payloadObj?.sub_type === 'url') {
+                            const payloadObj = buttonPayloads.find(x => 'index' in x && Number.parseInt(x.index) === bIndex)
+                            if (payloadObj && 'sub_type' in payloadObj && payloadObj?.sub_type === 'url') {
                                 const replacement = payloadObj.parameters && payloadObj.parameters[0].payload
                                 b.url = b.url.replace('{{1}}', replacement)
                             }
