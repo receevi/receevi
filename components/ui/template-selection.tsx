@@ -148,6 +148,9 @@ export default function TemplateSelection({ children, onTemplateSubmit }: { chil
     useEffect(() => {
         formSubmitted.current = false
         if (selectedTemplate?.components) {
+            replaceHeaderFields([])
+            replaceBodyFields([])
+            replaceButtonFields([])
             for (const component of selectedTemplate?.components) {
                 switch (component.type) {
                     case "HEADER": {
