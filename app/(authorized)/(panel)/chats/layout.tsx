@@ -15,11 +15,11 @@ export default async function ChatsLayout({ children }: {
     if (error) throw error
     return (
         <ContactContextProvider contacts={contacts}>
-            <div className="shadow-lg max-w-screen-2xl w-full h-full flex bg-white z-20">
-                <div className="flex-7">
+            <div className="shadow-lg w-full h-full flex bg-white z-20">
+                <div className="w-72 flex-shrink-0">
                     <ChatContacts />
                 </div>
-                <div className="flex-17">
+                <div className="flex-grow">
                     {children}
                 </div>
             </div>

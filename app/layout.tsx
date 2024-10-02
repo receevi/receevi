@@ -5,6 +5,7 @@ import SupabaseProvider from '../components/supabase-provider'
 import { createClient } from '@/utils/supabase-server'
 import './globals.css'
 import NextTopLoader from 'nextjs-toploader';
+import SupabaseUserProvider from '@/components/supabase-user-provider'
 
 // do not cache this layout
 export const revalidate = 0
@@ -32,7 +33,9 @@ export default async function RootLayout({
         <NextTopLoader color="#000"/>
         <SupabaseProvider>
           <SupabaseListener serverAccessToken={session?.access_token} />
-          {children}
+          <SupabaseUserProvider user={session?.user}>
+            {children}
+          </SupabaseUserProvider>
         </SupabaseProvider>
       </body>
     </html>
