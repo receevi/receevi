@@ -24,3 +24,8 @@ export function useSupabaseUser() {
     }
     return context
 }
+
+export function useUserRole() {
+    const { user } = useSupabaseUser()
+    return (user as any)?.user_role
+}

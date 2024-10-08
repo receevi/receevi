@@ -109,13 +109,13 @@ export default function ContactChat({ params }: { params: { wa_id: string } }) {
                     })()}
                 </div>
             </div>
-            <div className="w-72 flex-shrink-0 p-4">
-                {/* <div>
+            {/* <div className="w-72 flex-shrink-0 p-4">
+                <div>
                     <h3 className="font-bold">Assign Chat to Agent</h3>
                     <div className="mt-2">No agent has been assigned to this chat. Please assign an agent for further interaction.</div>
                     <Button className="mt-2">Assign to Agent</Button>
-                </div> */}
-            </div>
+                </div>
+            </div> */}
         </div>
     )
 }

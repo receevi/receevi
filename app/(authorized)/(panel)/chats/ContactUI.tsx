@@ -1,14 +1,16 @@
 import Link from "next/link";
 import { Contact } from "@/types/contact";
 import BlankUser from "./BlankUser";
-import { UPDATE_CURRENT_CONTACT, useCurrentContactDispatch } from "./CurrentContactContext";
+import { UPDATE_CURRENT_CONTACT, useContacts, useCurrentContactDispatch } from "./CurrentContactContext";
+import { cn } from "@/lib/utils";
 
 export default function ContactUI(props: { contact: Contact }) {
     const { contact } = props;
     const setCurrentContact = useCurrentContactDispatch()
+    const contacts = useContacts()
     return (
         <Link href={`/chats/${contact.wa_id}`} onClick={() => { setCurrentContact && setCurrentContact({ type: UPDATE_CURRENT_CONTACT, waId: contact.wa_id }) }}>
-            <div className="flex flex-row p-2 hover:bg-background-default-hover gap-2 cursor-pointer">
+            <div className={cn("flex flex-row p-2 hover:bg-background-default-hover gap-2 cursor-pointer", contacts && contacts.current?.wa_id === contact.wa_id ? "bg-background-default-hover": "")}>
                 <div>
                     <BlankUser className="w-12 h-12" />
                 </div>
