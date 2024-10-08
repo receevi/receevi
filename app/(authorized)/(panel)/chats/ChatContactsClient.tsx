@@ -56,7 +56,7 @@ export default function ChatContactsClient({ contacts }: { contacts: Contact[] }
     }, [supabase, setContacts])
 
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col h-[calc(100vh-6rem)] overflow-y-auto">
             {contactsState && contactsState.map(contact => {
                 return <ContactUI key={contact.wa_id} contact={contact} />
             })}

@@ -6,7 +6,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export interface Database {
+export type Database = {
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -39,13 +39,13 @@ export interface Database {
           contact_tags: string[] | null
           created_at: string
           delivered_count: number
+          failed_count: number
           id: string
           language: string
           name: string
           processed_count: number
           read_count: number
           replied_count: number
-          failed_count: number
           scheduled_count: number | null
           sent_count: number
           template_name: string
@@ -54,13 +54,13 @@ export interface Database {
           contact_tags?: string[] | null
           created_at?: string
           delivered_count?: number
+          failed_count?: number
           id?: string
           language: string
           name: string
           processed_count?: number
           read_count?: number
           replied_count?: number
-          failed_count?: number
           scheduled_count?: number | null
           sent_count?: number
           template_name: string
@@ -69,13 +69,13 @@ export interface Database {
           contact_tags?: string[] | null
           created_at?: string
           delivered_count?: number
+          failed_count?: number
           id?: string
           language?: string
           name?: string
           processed_count?: number
           read_count?: number
           replied_count?: number
-          failed_count?: number
           scheduled_count?: number | null
           sent_count?: number
           template_name?: string
@@ -96,21 +96,21 @@ export interface Database {
         Insert: {
           broadcast_id: string
           created_at?: string
-          ended_at?: string | null | Date
+          ended_at?: string | null
           id: string
           scheduled_count: number
           sent_count?: number
-          started_at?: string | null | Date
+          started_at?: string | null
           status?: string | null
         }
         Update: {
           broadcast_id?: string
           created_at?: string
-          ended_at?: string | null | Date
+          ended_at?: string | null
           id?: string
           scheduled_count?: number
           sent_count?: number
-          started_at?: string | null | Date
+          started_at?: string | null
           status?: string | null
         }
         Relationships: []
@@ -122,6 +122,7 @@ export interface Database {
           contact_id: number
           created_at: string
           delivered_at: string | null
+          failed_at: string | null
           id: string
           processed_at: string | null
           read_at: string | null
@@ -136,12 +137,13 @@ export interface Database {
           contact_id: number
           created_at?: string
           delivered_at?: string | null
+          failed_at?: string | null
           id?: string
           processed_at?: string | null
           read_at?: string | null
           replied_at?: string | null
           reply_counted?: boolean
-          sent_at?: string | null | Date
+          sent_at?: string | null
           wam_id?: string | null
         }
         Update: {
@@ -150,12 +152,13 @@ export interface Database {
           contact_id?: number
           created_at?: string
           delivered_at?: string | null
+          failed_at?: string | null
           id?: string
-          processed_at?: string | null | Date
+          processed_at?: string | null
           read_at?: string | null
           replied_at?: string | null
           reply_counted?: boolean
-          sent_at?: string | null | Date
+          sent_at?: string | null
           wam_id?: string | null
         }
         Relationships: []
@@ -180,6 +183,7 @@ export interface Database {
       }
       contacts: {
         Row: {
+          assigned_to: string | null
           created_at: string | null
           in_chat: boolean
           last_message_at: string | null
@@ -190,6 +194,7 @@ export interface Database {
           wa_id: number
         }
         Insert: {
+          assigned_to?: string | null
           created_at?: string | null
           in_chat?: boolean
           last_message_at?: string | null | Date
@@ -200,6 +205,7 @@ export interface Database {
           wa_id: number
         }
         Update: {
+          assigned_to?: string | null
           created_at?: string | null
           in_chat?: boolean
           last_message_at?: string | null | Date
@@ -209,7 +215,15 @@ export interface Database {
           unread_count?: number | null
           wa_id?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "contacts_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       message_template: {
         Row: {
@@ -252,6 +266,7 @@ export interface Database {
           chat_id: number
           created_at: string
           delivered_at: string | null
+          failed_at: string | null | Date
           id: number
           is_received: boolean
           media_url: string | null
@@ -265,6 +280,7 @@ export interface Database {
           chat_id: number
           created_at?: string
           delivered_at?: string | null | Date
+          failed_at?: string | null | Date
           id?: number
           is_received?: boolean
           media_url?: string | null
@@ -278,6 +294,7 @@ export interface Database {
           chat_id?: number
           created_at?: string
           delivered_at?: string | null | Date
+          failed_at?: string | null | Date
           id?: number
           is_received?: boolean
           media_url?: string | null
@@ -286,6 +303,53 @@ export interface Database {
           read_by_user_at?: string | null | Date
           sent_at?: string | null | Date
           wam_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          email: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+        }
+        Insert: {
+          email?: string | null
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+        }
+        Update: {
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      role_permissions: {
+        Row: {
+          id: number
+          permission: Database["public"]["Enums"]["app_permission"]
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          id?: number
+          permission: Database["public"]["Enums"]["app_permission"]
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          id?: number
+          permission?: Database["public"]["Enums"]["app_permission"]
+          role?: Database["public"]["Enums"]["app_role"]
         }
         Relationships: []
       }
@@ -319,6 +383,32 @@ export interface Database {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          id: number
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: number
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: number
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       webhook: {
         Row: {
           created_at: string | null
@@ -346,6 +436,13 @@ export interface Database {
         Args: {
           b_id: string
           delivered_count_to_be_added: number
+        }
+        Returns: undefined
+      }
+      add_failed_count_to_broadcast: {
+        Args: {
+          b_id: string
+          failed_count_to_be_added: number
         }
         Returns: undefined
       }
@@ -377,6 +474,18 @@ export interface Database {
         }
         Returns: undefined
       }
+      authorize: {
+        Args: {
+          requested_permission: Database["public"]["Enums"]["app_permission"]
+        }
+        Returns: boolean
+      }
+      custom_access_token_hook: {
+        Args: {
+          event: Json
+        }
+        Returns: Json
+      }
       pick_next_broadcast_batch: {
         Args: {
           b_id: string
@@ -387,6 +496,13 @@ export interface Database {
         Args: {
           delivered_at_in: string
           wam_id_in: string
+        }
+        Returns: boolean
+      }
+      update_message_failed_status: {
+        Args: {
+          wam_id_in: string
+          failed_at_in: string
         }
         Returns: boolean
       }
@@ -406,7 +522,12 @@ export interface Database {
       }
     }
     Enums: {
-      [_ in never]: never
+      app_permission:
+        | "contact.read"
+        | "contact.write"
+        | "chat.read"
+        | "chat.write"
+      app_role: "admin" | "agent"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -423,6 +544,7 @@ export interface Database {
           id: string
           name: string
           owner: string | null
+          owner_id: string | null
           public: boolean | null
           updated_at: string | null
         }
@@ -434,6 +556,7 @@ export interface Database {
           id: string
           name: string
           owner?: string | null
+          owner_id?: string | null
           public?: boolean | null
           updated_at?: string | null
         }
@@ -445,17 +568,11 @@ export interface Database {
           id?: string
           name?: string
           owner?: string | null
+          owner_id?: string | null
           public?: boolean | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "buckets_owner_fkey"
-            columns: ["owner"]
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
+        Relationships: []
       }
       migrations: {
         Row: {
@@ -487,8 +604,10 @@ export interface Database {
           metadata: Json | null
           name: string | null
           owner: string | null
+          owner_id: string | null
           path_tokens: string[] | null
           updated_at: string | null
+          user_metadata: Json | null
           version: string | null
         }
         Insert: {
@@ -499,8 +618,10 @@ export interface Database {
           metadata?: Json | null
           name?: string | null
           owner?: string | null
+          owner_id?: string | null
           path_tokens?: string[] | null
           updated_at?: string | null
+          user_metadata?: Json | null
           version?: string | null
         }
         Update: {
@@ -511,17 +632,118 @@ export interface Database {
           metadata?: Json | null
           name?: string | null
           owner?: string | null
+          owner_id?: string | null
           path_tokens?: string[] | null
           updated_at?: string | null
+          user_metadata?: Json | null
           version?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "objects_bucketId_fkey"
             columns: ["bucket_id"]
+            isOneToOne: false
             referencedRelation: "buckets"
             referencedColumns: ["id"]
-          }
+          },
+        ]
+      }
+      s3_multipart_uploads: {
+        Row: {
+          bucket_id: string
+          created_at: string
+          id: string
+          in_progress_size: number
+          key: string
+          owner_id: string | null
+          upload_signature: string
+          user_metadata: Json | null
+          version: string
+        }
+        Insert: {
+          bucket_id: string
+          created_at?: string
+          id: string
+          in_progress_size?: number
+          key: string
+          owner_id?: string | null
+          upload_signature: string
+          user_metadata?: Json | null
+          version: string
+        }
+        Update: {
+          bucket_id?: string
+          created_at?: string
+          id?: string
+          in_progress_size?: number
+          key?: string
+          owner_id?: string | null
+          upload_signature?: string
+          user_metadata?: Json | null
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "s3_multipart_uploads_bucket_id_fkey"
+            columns: ["bucket_id"]
+            isOneToOne: false
+            referencedRelation: "buckets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      s3_multipart_uploads_parts: {
+        Row: {
+          bucket_id: string
+          created_at: string
+          etag: string
+          id: string
+          key: string
+          owner_id: string | null
+          part_number: number
+          size: number
+          upload_id: string
+          version: string
+        }
+        Insert: {
+          bucket_id: string
+          created_at?: string
+          etag: string
+          id?: string
+          key: string
+          owner_id?: string | null
+          part_number: number
+          size?: number
+          upload_id: string
+          version: string
+        }
+        Update: {
+          bucket_id?: string
+          created_at?: string
+          etag?: string
+          id?: string
+          key?: string
+          owner_id?: string | null
+          part_number?: number
+          size?: number
+          upload_id?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "s3_multipart_uploads_parts_bucket_id_fkey"
+            columns: ["bucket_id"]
+            isOneToOne: false
+            referencedRelation: "buckets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "s3_multipart_uploads_parts_upload_id_fkey"
+            columns: ["upload_id"]
+            isOneToOne: false
+            referencedRelation: "s3_multipart_uploads"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
@@ -554,7 +776,7 @@ export interface Database {
         Args: {
           name: string
         }
-        Returns: unknown
+        Returns: string[]
       }
       get_size_by_bucket: {
         Args: Record<PropertyKey, never>
@@ -562,6 +784,41 @@ export interface Database {
           size: number
           bucket_id: string
         }[]
+      }
+      list_multipart_uploads_with_delimiter: {
+        Args: {
+          bucket_id: string
+          prefix_param: string
+          delimiter_param: string
+          max_keys?: number
+          next_key_token?: string
+          next_upload_token?: string
+        }
+        Returns: {
+          key: string
+          id: string
+          created_at: string
+        }[]
+      }
+      list_objects_with_delimiter: {
+        Args: {
+          bucket_id: string
+          prefix_param: string
+          delimiter_param: string
+          max_keys?: number
+          start_after?: string
+          next_token?: string
+        }
+        Returns: {
+          name: string
+          id: string
+          metadata: Json
+          updated_at: string
+        }[]
+      }
+      operation: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       search: {
         Args: {
@@ -592,4 +849,86 @@ export interface Database {
     }
   }
 }
+
+type PublicSchema = Database[Extract<keyof Database, "public">]
+
+export type Tables<
+  PublicTableNameOrOptions extends
+    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+        Database[PublicTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
+        PublicSchema["Views"])
+    ? (PublicSchema["Tables"] &
+        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  PublicTableNameOrOptions extends
+    | keyof PublicSchema["Tables"]
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
+    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  PublicTableNameOrOptions extends
+    | keyof PublicSchema["Tables"]
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
+    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  PublicEnumNameOrOptions extends
+    | keyof PublicSchema["Enums"]
+    | { schema: keyof Database },
+  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = PublicEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
+    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+    : never
 

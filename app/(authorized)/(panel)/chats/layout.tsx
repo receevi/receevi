@@ -15,7 +15,7 @@ export default async function ChatsLayout({ children }: {
     if (error) throw error
     return (
         <ContactContextProvider contacts={contacts}>
-            <div className="shadow-lg w-full h-full flex bg-white z-20">
+            <div className="shadow-lg w-full h-full flex bg-white z-20 p-4">
                 <div className="w-72 flex-shrink-0">
                     <ChatContacts />
                 </div>
