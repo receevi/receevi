@@ -27,5 +27,5 @@ export function useSupabaseUser() {
 
 export function useUserRole() {
     const { user } = useSupabaseUser()
-    return (user as any)?.user_role
+    return user?.user_metadata?.custom_user_role
 }

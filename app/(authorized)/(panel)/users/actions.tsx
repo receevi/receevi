@@ -9,7 +9,7 @@ export async function deleteUser(userId: string) {
     if (sessionGetError) {
         throw sessionGetError
     }
-    const userRole = (session.session?.user as any)?.user_role
+    const userRole = session.session?.user?.user_metadata?.custom_user_role
     console.log('userRole', userRole)
     if (userRole !== 'admin') {
         return { success: false, message: 'You are not authorized to create users' }

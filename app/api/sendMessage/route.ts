@@ -230,7 +230,6 @@ export async function POST(request: NextRequest) {
     const {
         data: { user },
     } = await supabase.auth.getUser()
-    console.log('user', user)
     if (!user) {
         return new NextResponse(null, { status: 401 })
     }

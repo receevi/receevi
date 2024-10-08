@@ -23,8 +23,7 @@ export async function createUser(data: z.infer<typeof userSchema>) {
     if (sessionGetError) {
         throw sessionGetError
     }
-    const userRole = (session.session?.user as any)?.user_role
-    console.log('userRole', userRole)
+    const userRole = session.session?.user?.user_metadata?.custom_user_role
     if (userRole !== 'admin') {
         return { success: false, message: 'You are not authorized to create users' }
     }
