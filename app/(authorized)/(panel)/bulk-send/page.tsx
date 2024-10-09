@@ -34,7 +34,7 @@ export default async function BulkSendPage({
     const broadcasts = await broadcastServer.getAllBroadcasts(page)
 
     return (
-        <>
+        <div className="m-4 bg-white p-4 rounded-xl">
             <WatchForChanges page={page} />
             <div className="space-y-4">
                 <div className="text-right">
@@ -75,6 +75,6 @@ export default async function BulkSendPage({
                     <PaginationButton pagesToAdd={1}>Next</PaginationButton>
                 </div>
             </div>
-        </>
+        </div>
     )
 }

@@ -20,17 +20,19 @@ export default async function NewBroadcastPage() {
     const messageTemplates = (await messageTemplateRepo.getMessageTemplateUniqueNames()).map(convertToOptions)
     const contactTags = (await contactTagRepo.getContactTags()).map(convertToOptions)
     return (
-        <NewBroadcastPageForm>
-            <div className="grid gap-1.5">
-                <Label htmlFor="broadcast_name">Name</Label>
-                <Input className="w-[20rem]" name="broadcast_name" />
-            </div>
-            <MessageTemplateWithLanguage messageTemplates={messageTemplates} />
-            <div className="grid gap-1.5">
-                <Label htmlFor="contact_tags">Contact Tags</Label>
-                <MultiSelectDropdown name="contact_tags" displayName="tag" className="w-[20rem]" options={contactTags} />
-            </div>
-            <SubmitButton/>
-        </NewBroadcastPageForm>
+        <div className="p-4 m-4 bg-white rounded-xl">
+            <NewBroadcastPageForm>
+                <div className="grid gap-1.5">
+                    <Label htmlFor="broadcast_name">Name</Label>
+                    <Input className="w-[20rem]" name="broadcast_name" />
+                </div>
+                <MessageTemplateWithLanguage messageTemplates={messageTemplates} />
+                <div className="grid gap-1.5">
+                    <Label htmlFor="contact_tags">Contact Tags</Label>
+                    <MultiSelectDropdown name="contact_tags" displayName="tag" className="w-[20rem]" options={contactTags} />
+                </div>
+                <SubmitButton/>
+            </NewBroadcastPageForm>
+        </div>
     )
 }

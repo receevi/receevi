@@ -31,26 +31,26 @@ import { AddBulkContactsDialog } from "./AddBulkContactsDialog"
 export default function ContactsClient() {
     const columns = useMemo<ColumnDef<Contact>[]>(
         () => [
-            {
-                id: "select",
-                size: 40,
-                header: ({ table }) => (
-                    <Checkbox
-                        checked={table.getIsAllPageRowsSelected()}
-                        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                        aria-label="Select all"
-                    />
-                ),
-                cell: ({ row }) => (
-                    <Checkbox
-                        checked={row.getIsSelected()}
-                        onCheckedChange={(value) => row.toggleSelected(!!value)}
-                        aria-label="Select row"
-                    />
-                ),
-                enableSorting: false,
-                enableHiding: false,
-            },
+            // {
+            //     id: "select",
+            //     size: 40,
+            //     header: ({ table }) => (
+            //         <Checkbox
+            //             checked={table.getIsAllPageRowsSelected()}
+            //             onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            //             aria-label="Select all"
+            //         />
+            //     ),
+            //     cell: ({ row }) => (
+            //         <Checkbox
+            //             checked={row.getIsSelected()}
+            //             onCheckedChange={(value) => row.toggleSelected(!!value)}
+            //             aria-label="Select row"
+            //         />
+            //     ),
+            //     enableSorting: false,
+            //     enableHiding: false,
+            // },
             {
                 accessorKey: "wa_id",
                 header: "Number",
@@ -158,7 +158,7 @@ export default function ContactsClient() {
     })
 
     return (
-        <div className="w-full">
+        <div className="m-4 bg-white rounded-xl p-4">
             <div className="flex justify-between items-center py-4">
                 <Input
                     placeholder="Search name..."
@@ -182,9 +182,9 @@ export default function ContactsClient() {
                 <ContactsTable table={table} totalColumns={columns.length} />
             </div>
             <div className="flex items-center justify-end space-x-2 py-4">
-                <div className="flex-1 text-sm text-muted-foreground">
+                {/* <div className="flex-1 text-sm text-muted-foreground">
                     {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s) selected
-                </div>
+                </div> */}
                 {table.getPageCount() != -1 && <div className="text-sm text-muted-foreground">
                     Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
                 </div>}

@@ -1,14 +1,13 @@
 'use client'
 
-import { use, useCallback, useEffect, useState } from 'react'
-import MoreIcon from '@/components/icons/MoreIcon'
+import { useSupabase } from '@/components/supabase-provider'
+import { useUserRole } from '@/components/supabase-user-provider'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import UserLetterIcon from '@/components/users/UserLetterIcon'
+import { useCallback, useEffect, useState } from 'react'
+import { useAgents } from '../AgentContext'
 import BlankUser from '../BlankUser'
 import { UPDATE_CURRENT_CONTACT, useContacts, useCurrentContactDispatch } from '../CurrentContactContext'
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useAgents } from '../AgentContext'
-import { useUserRole } from '@/components/supabase-user-provider'
-import UserLetterIcon from '@/components/users/UserLetterIcon'
-import { useSupabase } from '@/components/supabase-provider'
 
 export default function ChatHeader({ waId }: { waId: string }) {
     const currentContact = useContacts()
@@ -16,10 +15,7 @@ export default function ChatHeader({ waId }: { waId: string }) {
     const agentState = useAgents()
     const { supabase } = useSupabase()
     const userRole = useUserRole()
-    console.log('currentContact?.current?.assigned_to', currentContact?.current?.assigned_to)
-    // const [roleAssigned, setRoleAssigned] = useState<string | undefined>(currentContact?.current?.assigned_to || undefined)
     const [roleAssigned, setRoleAssigned] = useState<string | undefined>(currentContact?.current?.assigned_to || undefined)
-    console.log('roleAssigned', roleAssigned)
     useEffect(() => {
         setRoleAssigned(currentContact?.current?.assigned_to || undefined)
     }, [currentContact])
@@ -30,12 +26,11 @@ export default function ChatHeader({ waId }: { waId: string }) {
     })
     const assignToAgent = useCallback(async (agentId: string) => {
         const { data } = await supabase.from('contacts').update({ assigned_to: agentId }).eq('wa_id', waId)
-        console.log('data', data)
         setRoleAssigned(agentId)
         if (currentContact?.current) {
             currentContact.current.assigned_to = agentId
         }
-    }, [supabase])
+    }, [supabase, currentContact, waId])
     console.log('agentState.agents', agentState?.agents)
     return (
         <div className="bg-panel-header-background">

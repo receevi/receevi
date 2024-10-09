@@ -6,6 +6,22 @@ import { createClient } from "@/utils/supabase-browser";
 import { useEffect, useState } from "react";
 import ContactUI from "./ContactUI";
 
+function sortContacts(contacts: Contact[]) {
+    contacts.sort((a: Contact, b: Contact) => {
+        if (!a.last_message_at || !b.last_message_at) {
+            return 0;
+        }
+        const aDate = new Date(a.last_message_at)
+        const bDate = new Date(b.last_message_at)
+        if (aDate > bDate) {
+            return -1;
+        } else if (bDate > aDate) {
+            return 1;
+        }
+        return 0;
+    })
+}
+
 export default function ChatContactsClient({ contacts }: { contacts: Contact[] }) {
     const [supabase] = useState(() => createClient())
     const [contactsState, setContacts] = useState<Contact[]>(contacts)
@@ -24,22 +40,11 @@ export default function ChatContactsClient({ contacts }: { contacts: Contact[] }
                             const indexOfItem = contactsState.findIndex((contact: Contact) => contact.wa_id == payload.old.wa_id)
                             if (indexOfItem !== -1) {
                                 contactsState[indexOfItem] = payload.new
-                                contactsState.sort((a: Contact, b: Contact) => {
-                                    if (!a.last_message_at || !b.last_message_at) {
-                                        return 0;
-                                    }
-                                    const aDate = new Date(a.last_message_at)
-                                    const bDate = new Date(b.last_message_at)
-                                    if (aDate > bDate) {
-                                        return -1;
-                                    } else if (bDate > aDate) {
-                                        return 1;
-                                    }
-                                    return 0;
-                                })
                             } else {
                                 console.warn(`Could not find contact to update contact for id: ${payload.old.wa_id}`)
+                                contactsState.splice(0, 0, payload.new)
                             }
+                            sortContacts(contactsState)
                             return [...contactsState]
                         })
                         break;
