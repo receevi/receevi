@@ -8,7 +8,7 @@ import UserLetterIcon from "@/components/users/UserLetterIcon";
 import { CircleUserRound, ContactIcon, LogOut, MessageCircleIcon, RadioIcon, UserRound, UsersIcon } from "lucide-react";
 import Link from 'next/link';
 import { usePathname, useRouter } from "next/navigation";
-import { ReactNode, useCallback } from "react";
+import { ReactNode, useCallback, useEffect } from "react";
 
 export default function PanelClient({ children }: { children: ReactNode }) {
     const activePath = usePathname();
@@ -21,7 +21,14 @@ export default function PanelClient({ children }: { children: ReactNode }) {
             console.log("logout successful")
             router.push('/login')
         }).catch(console.error);
-    }, [])
+    }, [router, supabase])
+    useEffect(() => {
+        supabase.supabase.auth.getSession().then(res => {
+            if (res.data.session?.access_token) {
+                supabase.supabase.realtime.setAuth(res.data.session?.access_token)
+            }
+        })
+    }, [supabase])
 
     return (
         <div className="flex flex-col h-screen">

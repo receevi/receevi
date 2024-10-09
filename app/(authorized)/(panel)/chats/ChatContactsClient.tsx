@@ -26,7 +26,7 @@ export default function ChatContactsClient({ contacts }: { contacts: Contact[] }
     const [supabase] = useState(() => createClient())
     const [contactsState, setContacts] = useState<Contact[]>(contacts)
     useEffect(() => {
-        const channel = supabase.channel('realtime contacts')
+        const channel = supabase.channel('chat-contacts')
             .on<Contact>('postgres_changes', { event: '*', schema: 'public', table: DBTables.Contacts }, payload => {
                 switch (payload.eventType) {
                     case "INSERT":
