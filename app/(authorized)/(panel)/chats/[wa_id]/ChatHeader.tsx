@@ -21,10 +21,10 @@ export default function ChatHeader({ waId }: { waId: string }) {
         setRoleAssigned(currentContact?.current?.assigned_to || undefined)
     }, [currentContact])
     useEffect(() => {
-        if (!currentContact?.current && dispatch) {
+        if (dispatch) {
             dispatch({ type: UPDATE_CURRENT_CONTACT, waId: Number.parseInt(waId) })
         }
-    })
+    }, [dispatch, waId])
     const assignToAgent = useCallback(async (agentId: string | null) => {
         const { data } = await supabase.from('contacts').update({ assigned_to: agentId }).eq('wa_id', waId)
         setRoleAssigned(agentId)
