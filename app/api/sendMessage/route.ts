@@ -234,7 +234,6 @@ export async function POST(request: NextRequest) {
         return new NextResponse(null, { status: 401 })
     }
     const reqFormData = await request.formData()
-    console.log('reqFormData', reqFormData)
     const message = reqFormData.get('message')?.toString()
     const fileType = reqFormData.get('fileType')?.toString()
     const file: (File | null) = reqFormData.get('file') as (File | null)

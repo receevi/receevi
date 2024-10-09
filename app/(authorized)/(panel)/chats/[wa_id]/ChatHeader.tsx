@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useAgents } from '../AgentContext'
 import BlankUser from '../BlankUser'
 import { UPDATE_CURRENT_CONTACT, useContacts, useCurrentContactDispatch } from '../CurrentContactContext'
+import { Button } from '@/components/ui/button'
 
 export default function ChatHeader({ waId }: { waId: string }) {
     const currentContact = useContacts()
@@ -15,7 +16,7 @@ export default function ChatHeader({ waId }: { waId: string }) {
     const agentState = useAgents()
     const { supabase } = useSupabase()
     const userRole = useUserRole()
-    const [roleAssigned, setRoleAssigned] = useState<string | undefined>(currentContact?.current?.assigned_to || undefined)
+    const [roleAssigned, setRoleAssigned] = useState<string | null | undefined>(currentContact?.current?.assigned_to || undefined)
     useEffect(() => {
         setRoleAssigned(currentContact?.current?.assigned_to || undefined)
     }, [currentContact])
@@ -24,14 +25,13 @@ export default function ChatHeader({ waId }: { waId: string }) {
             dispatch({ type: UPDATE_CURRENT_CONTACT, waId: Number.parseInt(waId) })
         }
     })
-    const assignToAgent = useCallback(async (agentId: string) => {
+    const assignToAgent = useCallback(async (agentId: string | null) => {
         const { data } = await supabase.from('contacts').update({ assigned_to: agentId }).eq('wa_id', waId)
         setRoleAssigned(agentId)
         if (currentContact?.current) {
             currentContact.current.assigned_to = agentId
         }
     }, [supabase, currentContact, waId])
-    console.log('agentState.agents', agentState?.agents)
     return (
         <div className="bg-panel-header-background">
             <header className="px-4 py-2 flex flex-row gap-4 items-center">
@@ -41,31 +41,38 @@ export default function ChatHeader({ waId }: { waId: string }) {
                 </div>
                 {(() => {
                     if (userRole == 'admin') {
-                        return (<div className='flex flex-row items-center gap-2'>
-                            <div>Assign to:</div>
-                            <div>
-                                <Select value={roleAssigned} onValueChange={(value) => { assignToAgent(value) }}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select an agent" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {agentState?.agents.map((ag) => {
-                                            return (
-                                                <SelectItem key={ag.id} value={ag.id}>
-                                                    <div className='flex flex-row gap-2 items-center'>
-                                                        <UserLetterIcon user={ag} className='' />
-                                                        <div className='flex-shrink-0'>
-                                                            <div>{ag.firstName + ' ' + ag.lastName}</div>
-                                                            <div>{ag.email}</div>
+                        return (
+                            <div className='flex flex-row items-center gap-2'>
+                                <div className='text-sm font-medium text-gray-700'>Assign to:</div>
+                                <div>
+                                    <Select value={roleAssigned || undefined} onValueChange={(value) => { assignToAgent(value) }}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select an agent" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {agentState?.agents.map((ag) => {
+                                                return (
+                                                    <SelectItem key={ag.id} value={ag.id}>
+                                                        <div className='flex flex-row gap-2 items-center'>
+                                                            <UserLetterIcon user={ag} className='' />
+                                                            <div className='flex-shrink-0'>
+                                                                <div>{ag.firstName + ' ' + ag.lastName}</div>
+                                                                <div>{ag.email}</div>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </SelectItem>
-                                            )
-                                        })}
-                                    </SelectContent>
-                                </Select>
+                                                    </SelectItem>
+                                                )
+                                            })}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                {roleAssigned && (
+                                    <div>
+                                        <Button variant="outline" onClick={() => { assignToAgent(null) }} size="sm" className='rounded-full'>Unassign</Button>
+                                    </div>
+                                )}
                             </div>
-                        </div>)
+                        )
                     }
                 })()}
             </header>
