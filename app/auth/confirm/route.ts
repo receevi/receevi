@@ -20,6 +20,8 @@ export async function GET(request: NextRequest) {
         if (!error) {
             // redirect user to specified redirect URL or root of app
             redirect(next)
+        } else {
+            console.error(error)
         }
     }
 

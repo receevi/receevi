@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LockIcon, MailIcon } from "lucide-react";
+import Link from "next/link";
 
 export default function LoginClientComponent() {
     const { supabase } = useSupabase();
@@ -31,6 +32,9 @@ export default function LoginClientComponent() {
                     </div>
                     <Button type="submit" className="w-full" formAction={login}>Log in</Button>
                 </form>
+                <div className="mt-4 text-center">
+                    <Link href="/login/forgot-password" className="text-gray-600 underline">Forgot Password?</Link>
+                </div>
             </div>
         </div>
     );

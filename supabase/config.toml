@@ -62,6 +62,10 @@ enable_confirmations = false
 subject = "You are invited to Receevi"
 content_path = "./supabase/templates/invite.html"
 
+[auth.email.template.recovery]
+subject = "Reset password"
+content_path = "./supabase/templates/reset-password.html"
+
 # Use an external OAuth provider. The full list of providers are: `apple`, `azure`, `bitbucket`,
 # `discord`, `facebook`, `github`, `gitlab`, `google`, `keycloak`, `linkedin`, `notion`, `twitch`,
 # `twitter`, `slack`, `spotify`, `workos`, `zoom`.
