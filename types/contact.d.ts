@@ -8,4 +8,5 @@ export type Contact = {
     is_current?: boolean,
     in_chat: boolean,
     unread_count: number | null,
+    assigned_to: string | null,
 }

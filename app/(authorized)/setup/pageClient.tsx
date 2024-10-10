@@ -32,7 +32,7 @@ export default function SetupFrontendClient({ pendingItems }: { pendingItems: Ap
 
     useEffect(() => {
         const channel = supabase
-            .channel('any')
+            .channel('setup-page')
             .on<AppSetup>('postgres_changes', { event: '*', schema: 'public', table: DBTables.Setup }, payload => {
                 switch (payload.eventType) {
                     case "UPDATE":

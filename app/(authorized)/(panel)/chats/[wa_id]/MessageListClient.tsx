@@ -71,7 +71,7 @@ export default function MessageListClient({ from }: { from: string }) {
         if (stateMessages && stateMessages[0]) {
             stateMessages[0].created_at
             const channel = supabase
-                .channel('schema-db-changes')
+                .channel('message-update')
                 .on<DBMessage>('postgres_changes', {
                     event: 'UPDATE',
                     schema: 'public',
@@ -93,7 +93,7 @@ export default function MessageListClient({ from }: { from: string }) {
 
     useEffect(() => {
         const channel = supabase
-            .channel('any')
+            .channel('message-insert')
             .on<DBMessage>('postgres_changes', {
                 event: 'INSERT',
                 schema: 'public',

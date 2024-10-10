@@ -312,7 +312,6 @@ export default function TemplateSelection({ children, onTemplateSubmit }: { chil
     }, [selectedTemplate, onTemplateSubmit, resetTemplatePopup])
 
     useEffect(() => {
-        console.log('hello')
         switch (step) {
             case 0: {
                 setNextEnabled(!!selectedTemplate)

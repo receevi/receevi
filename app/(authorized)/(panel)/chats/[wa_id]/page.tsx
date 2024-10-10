@@ -18,15 +18,19 @@ export const revalidate = 0
 export default function ContactChat({ params }: { params: { wa_id: string } }) {
     const [isChatWindowOpen, setChatWindowOpen] = useState<boolean | undefined>()
     const [lastMessageReceivedAt, setLastMessageReceivedAt] = useState<Date | undefined>()
-    const [ contactRepository ] = useState(() => ContactBrowserFactory.getInstance())
-    const [ supabase ] = useState(() => createClient())
-    const [ messageTemplateSending, setMessageTemplateSending ] = useState<boolean>(false);
+    const [contactRepository] = useState(() => ContactBrowserFactory.getInstance())
+    const [supabase] = useState(() => createClient())
+    const [messageTemplateSending, setMessageTemplateSending] = useState<boolean>(false);
+    const [contact, setContact] = useState<Contact | undefined>();
 
     useEffect(() => {
         contactRepository.getContactById(params.wa_id).then((contact) => {
-            setLastMessageReceivedAt(contact.last_message_received_at ? new Date(contact.last_message_received_at) : undefined)
+            if (contact) {
+                setContact(contact)
+                setLastMessageReceivedAt(contact.last_message_received_at ? new Date(contact.last_message_received_at) : undefined)
+            }
         })
-    }, [contactRepository, setChatWindowOpen, params.wa_id, setLastMessageReceivedAt])
+    }, [contactRepository, setChatWindowOpen, params.wa_id, setLastMessageReceivedAt, setContact])
 
     useEffect(() => {
         if (lastMessageReceivedAt) {
@@ -43,7 +47,6 @@ export default function ContactChat({ params }: { params: { wa_id: string } }) {
     }, [lastMessageReceivedAt, setChatWindowOpen])
 
     useEffect(() => {
-        console.log('params.wa_id', params.wa_id)
         const channel = supabase
             .channel('last-message-received-channel')
             .on<Contact>('postgres_changes', {
@@ -81,32 +84,41 @@ export default function ContactChat({ params }: { params: { wa_id: string } }) {
     }, [params.wa_id, setMessageTemplateSending])
 
     return (
-        <div className="bg-conversation-panel-background h-full relative">
-            <div className="bg-chat-img h-full w-full absolute bg-[length:412.5px_749.25px] opacity-40"></div>
-            <div className="h-full relative flex flex-col">
-                <ChatHeader waId={params.wa_id} />
-                <MessageListClient from={params.wa_id} />
-                {(() => {
-                    if (typeof isChatWindowOpen != 'undefined') {
-                        if (isChatWindowOpen) {
-                            return <SendMessageWrapper waId={params.wa_id} />
-                        } else {
-                            return (
-                                <div className="p-4 bg-white flex flex-row gap-4 items-center">
-                                    <span className="text-sm">You can only send a message within 24 hours of the last customer interaction. Please wait until the customer reaches out to you again or send a template message. <a className="text-blue-500" href="https://developers.facebook.com/docs/whatsapp/cloud-api/guides/send-messages#customer-service-windows" target="_blank" rel="noopener noreferrer">Read more</a></span>
-                                    <TemplateSelection onTemplateSubmit={onTemplateSubmit}>
-                                        <Button disabled={messageTemplateSending} className="min-w-fit">
-                                            {messageTemplateSending && <><TWLoader className="w-5 h-5"/> &nbsp;&nbsp; </>}
-                                            Send template message
-                                        </Button>
-                                    </TemplateSelection>
-                                </div>
-                            )
+        <div className="h-full flex flex-row">
+            <div className="bg-conversation-panel-background h-full relative flex-grow">
+                <div className="bg-chat-img h-full w-full absolute bg-[length:412.5px_749.25px] opacity-40"></div>
+                <div className="h-full relative flex flex-col">
+                    <ChatHeader waId={params.wa_id} />
+                    <MessageListClient from={params.wa_id} />
+                    {(() => {
+                        if (typeof isChatWindowOpen !== 'undefined' && typeof contact !== 'undefined') {
+                            if (isChatWindowOpen) {
+                                return <SendMessageWrapper waId={params.wa_id} />
+                            } else {
+                                return (
+                                    <div className="p-4 bg-white flex flex-row gap-4 items-center">
+                                        <span className="text-sm">You can only send a message within 24 hours of the last customer interaction. Please wait until the customer reaches out to you again or send a template message. <a className="text-blue-500" href="https://developers.facebook.com/docs/whatsapp/cloud-api/guides/send-messages#customer-service-windows" target="_blank" rel="noopener noreferrer">Read more</a></span>
+                                        <TemplateSelection onTemplateSubmit={onTemplateSubmit}>
+                                            <Button disabled={messageTemplateSending} className="min-w-fit">
+                                                {messageTemplateSending && <><TWLoader className="w-5 h-5" /> &nbsp;&nbsp; </>}
+                                                Send template message
+                                            </Button>
+                                        </TemplateSelection>
+                                    </div>
+                                )
+                            }
                         }
-                    }
-                    return <></>
-                })()}
+                        return <></>
+                    })()}
+                </div>
             </div>
+            {/* <div className="w-72 flex-shrink-0 p-4">
+                <div>
+                    <h3 className="font-bold">Assign Chat to Agent</h3>
+                    <div className="mt-2">No agent has been assigned to this chat. Please assign an agent for further interaction.</div>
+                    <Button className="mt-2">Assign to Agent</Button>
+                </div>
+            </div> */}
         </div>
     )
 }
