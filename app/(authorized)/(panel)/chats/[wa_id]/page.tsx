@@ -21,12 +21,16 @@ export default function ContactChat({ params }: { params: { wa_id: string } }) {
     const [contactRepository] = useState(() => ContactBrowserFactory.getInstance())
     const [supabase] = useState(() => createClient())
     const [messageTemplateSending, setMessageTemplateSending] = useState<boolean>(false);
+    const [contact, setContact] = useState<Contact | undefined>();
 
     useEffect(() => {
         contactRepository.getContactById(params.wa_id).then((contact) => {
-            setLastMessageReceivedAt(contact.last_message_received_at ? new Date(contact.last_message_received_at) : undefined)
+            if (contact) {
+                setContact(contact)
+                setLastMessageReceivedAt(contact.last_message_received_at ? new Date(contact.last_message_received_at) : undefined)
+            }
         })
-    }, [contactRepository, setChatWindowOpen, params.wa_id, setLastMessageReceivedAt])
+    }, [contactRepository, setChatWindowOpen, params.wa_id, setLastMessageReceivedAt, setContact])
 
     useEffect(() => {
         if (lastMessageReceivedAt) {
@@ -87,7 +91,7 @@ export default function ContactChat({ params }: { params: { wa_id: string } }) {
                     <ChatHeader waId={params.wa_id} />
                     <MessageListClient from={params.wa_id} />
                     {(() => {
-                        if (typeof isChatWindowOpen != 'undefined') {
+                        if (typeof isChatWindowOpen !== 'undefined' && typeof contact !== 'undefined') {
                             if (isChatWindowOpen) {
                                 return <SendMessageWrapper waId={params.wa_id} />
                             } else {
