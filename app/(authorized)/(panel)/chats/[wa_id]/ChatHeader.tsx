@@ -63,6 +63,17 @@ export default function ChatHeader({ waId }: { waId: string }) {
                                                     </SelectItem>
                                                 )
                                             })}
+                                            {(() => {
+                                                if (agentState?.agents.length === 0) {
+                                                    return (
+                                                        <div className='flex flex-row gap-2 items-center'>
+                                                            <div className='flex-shrink-0 p-2'>
+                                                                <div className='text-sm text-gray-500'>No agents found</div>
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                }
+                                            })()}
                                         </SelectContent>
                                     </Select>
                                 </div>
