@@ -79,7 +79,7 @@ export default async function UsersPage(
         <div className="m-4 bg-white rounded-xl p-4">
             <div className="flex justify-between items-center mb-4 gap-4">
                 <SearchBar />
-                <Link href="/users/new" className=" bg-button-primary-background text-white px-4 py-2 rounded-full flex-shrink-0"> Add User</Link>
+                <Link href="/users/new" className="bg-button-primary-background text-white px-4 py-2 rounded-full flex-shrink-0 text-sm"> Add User</Link>
             </div>
             <div>
                 {(() => {
