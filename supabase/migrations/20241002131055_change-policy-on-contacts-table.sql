@@ -1,3 +1,6 @@
+ALTER TABLE "public"."contacts" 
+ADD COLUMN "assigned_to" UUID REFERENCES "auth"."users" ("id") ON DELETE SET NULL;
+
 DROP POLICY IF EXISTS "Enable all for authenticated users only on contacts" ON "public"."contacts";
 
 
