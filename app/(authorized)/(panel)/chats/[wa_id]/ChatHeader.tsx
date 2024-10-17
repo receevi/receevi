@@ -2,42 +2,37 @@
 
 import { useSupabase } from '@/components/supabase-provider'
 import { useUserRole } from '@/components/supabase-user-provider'
+import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import UserLetterIcon from '@/components/users/UserLetterIcon'
+import { Contact } from '@/types/contact'
 import { useCallback, useEffect, useState } from 'react'
 import { useAgents } from '../AgentContext'
 import BlankUser from '../BlankUser'
-import { UPDATE_CURRENT_CONTACT, useContacts, useCurrentContactDispatch } from '../CurrentContactContext'
-import { Button } from '@/components/ui/button'
 
-export default function ChatHeader({ waId }: { waId: string }) {
-    const currentContact = useContacts()
-    const dispatch = useCurrentContactDispatch()
+export default function ChatHeader({ contact }: { contact: Contact | undefined }) {
     const agentState = useAgents()
     const { supabase } = useSupabase()
     const userRole = useUserRole()
-    const [roleAssigned, setRoleAssigned] = useState<string | null | undefined>(currentContact?.current?.assigned_to || undefined)
+    const [roleAssigned, setRoleAssigned] = useState<string | null | undefined>(contact?.assigned_to || undefined)
     useEffect(() => {
-        setRoleAssigned(currentContact?.current?.assigned_to || undefined)
-    }, [currentContact])
-    useEffect(() => {
-        if (dispatch) {
-            dispatch({ type: UPDATE_CURRENT_CONTACT, waId: Number.parseInt(waId) })
-        }
-    }, [dispatch, waId])
+        setRoleAssigned(contact?.assigned_to || undefined)
+    }, [contact])
     const assignToAgent = useCallback(async (agentId: string | null) => {
-        const { data } = await supabase.from('contacts').update({ assigned_to: agentId }).eq('wa_id', waId)
-        setRoleAssigned(agentId)
-        if (currentContact?.current) {
-            currentContact.current.assigned_to = agentId
+        if (contact?.wa_id) {
+            const { data } = await supabase.from('contacts').update({ assigned_to: agentId }).eq('wa_id', contact.wa_id)
+            setRoleAssigned(agentId)
+            if (contact) {
+                contact.assigned_to = agentId
+            }
         }
-    }, [supabase, currentContact, waId])
+    }, [supabase, contact])
     return (
         <div className="bg-panel-header-background">
             <header className="px-4 py-2 flex flex-row gap-4 items-center">
                 <BlankUser className="w-10 h-10" />
                 <div className='text-primary-strong flex-grow'>
-                    {currentContact?.current?.profile_name}
+                    {contact?.profile_name}
                 </div>
                 {(() => {
                     if (userRole == 'admin') {
