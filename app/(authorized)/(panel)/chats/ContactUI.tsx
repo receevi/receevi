@@ -21,10 +21,7 @@ export default function ContactUI(props: { contact: ContactFE }) {
                             <div className="text-sm">+{contact.wa_id}</div>
                         </div>
                     </div>
-                    <div className="flex flex-row">
-                        <div className="">
-                            <span className="text-xs text-gray-500">{contact.timeSince}</span>
-                        </div>
+                    <div className="flex flex-col items-end">
                         {(() => {
                             if (contact.unread_count && contact.unread_count > 0) {
                                 return (
@@ -32,6 +29,9 @@ export default function ContactUI(props: { contact: ContactFE }) {
                                 )
                             }
                         })()}
+                        <div>
+                            <span className="text-xs text-gray-500">{contact.timeSince}</span>
+                        </div>
                     </div>
                 </div>
             </div>
