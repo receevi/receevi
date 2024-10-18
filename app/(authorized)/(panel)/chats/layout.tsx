@@ -30,7 +30,7 @@ export default async function ChatsLayout({ children }: {
             <AgantContextProvider agents={agents}>
                 <div className="p-4 h-full">
                     <div className="shadow-lg z-20 rounded-xl bg-white flex h-full">
-                        <div className="w-72 flex-shrink-0">
+                        <div className="w-80 flex-shrink-0">
                             <ChatContactsClient />
                         </div>
                         <div className="flex-grow">

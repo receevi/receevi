@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { Contact } from "@/types/contact";
+import { ContactFE } from "@/types/contact";
 import BlankUser from "./BlankUser";
 import { UPDATE_CURRENT_CONTACT, useCurrentContact, useCurrentContactDispatch } from "./CurrentContactContext";
 import { cn } from "@/lib/utils";
 
-export default function ContactUI(props: { contact: Contact }) {
+export default function ContactUI(props: { contact: ContactFE }) {
     const { contact } = props;
     const currentContact = useCurrentContact()
     const setCurrentContact = useCurrentContactDispatch()
@@ -21,13 +21,18 @@ export default function ContactUI(props: { contact: Contact }) {
                             <div className="text-sm">+{contact.wa_id}</div>
                         </div>
                     </div>
-                    {(() => {
-                        if (contact.unread_count && contact.unread_count > 0) {
-                            return (
-                                <div className="bg-green-500 flex-grow-0 flex-shrink-0 p-2 h-6 w-6 text-white rounded-full text-xs font-bold flex items-center justify-center">{contact.unread_count}</div>
-                            )
-                        }
-                    })()}
+                    <div className="flex flex-row">
+                        <div className="">
+                            <span className="text-xs text-gray-500">{contact.timeSince}</span>
+                        </div>
+                        {(() => {
+                            if (contact.unread_count && contact.unread_count > 0) {
+                                return (
+                                    <div className="bg-green-500 flex-grow-0 flex-shrink-0 p-2 h-6 w-6 text-white rounded-full text-xs font-bold flex items-center justify-center">{contact.unread_count}</div>
+                                )
+                            }
+                        })()}
+                    </div>
                 </div>
             </div>
         </Link>

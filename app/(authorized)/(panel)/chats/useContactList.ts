@@ -1,7 +1,7 @@
 import { useSupabase } from "@/components/supabase-provider";
 import { DBTables } from "@/lib/enums/Tables";
-import { isLessThanADay } from "@/lib/time-utils";
-import { Contact } from "@/types/contact";
+import { getTimeSince, isLessThanADay } from "@/lib/time-utils";
+import { Contact, ContactFE } from "@/types/contact";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 function sortContacts(contacts: Contact[]) {
@@ -20,9 +20,18 @@ function sortContacts(contacts: Contact[]) {
     })
 }
 
+function addTimeSince(data: Contact[]): ContactFE[] {
+    return data.map((contact: Contact) => {
+        return {
+            ...contact,
+            timeSince: contact.last_message_at ? getTimeSince(new Date(contact.last_message_at)) : null,
+        }
+    })
+}
+
 export function useContactList(search: string, active: boolean) {
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [contacts, setContacts] = useState<Contact[]>([]);
+    const [contacts, setContacts] = useState<ContactFE[]>([]);
     const { supabase } = useSupabase()
     const fetchedUntil = useRef<string | null>(null);
     const noMore = useRef<boolean>(false);
@@ -46,7 +55,7 @@ export function useContactList(search: string, active: boolean) {
         if (error) {
             throw error
         }
-        return data;
+        return addTimeSince(data);
     }, [supabase])
     const loadMore = useCallback(async () => {
         if (fetchedUntil.current && !noMore.current && !isLoading) {
@@ -70,6 +79,16 @@ export function useContactList(search: string, active: boolean) {
         noMore.current = false
         fetchedUntil.current = null
     }, [active])
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setContacts((existingContacts) => {
+                existingContacts = addTimeSince(existingContacts)
+                return [...existingContacts]
+            })
+        }, 30000)
+        return () => clearInterval(interval)
+    }, [setContacts])
 
     useEffect(() => {
         setIsLoading(true)
@@ -110,7 +129,8 @@ export function useContactList(search: string, active: boolean) {
                                 }
                                 if (fetchedUntil.current && payload.new.last_message_at) {
                                     if (new Date(payload.new.last_message_at) > new Date(fetchedUntil.current)) {
-                                        existingContacts.push(payload.new)
+                                        const timeSinceAdded = addTimeSince([payload.new])[0]
+                                        existingContacts.push(timeSinceAdded)
                                         sortContacts(existingContacts)
                                         return [...existingContacts]
                                     }
@@ -128,13 +148,14 @@ export function useContactList(search: string, active: boolean) {
                                     }
                                 }
                                 const indexOfItem = existingContacts.findIndex(contact => contact.wa_id === payload.new.wa_id)
+                                const timeSinceAdded = addTimeSince([payload.new])[0]
                                 if (indexOfItem !== -1) {
-                                    existingContacts[indexOfItem] = payload.new
+                                    existingContacts[indexOfItem] = timeSinceAdded
                                 } else if (fetchedUntil.current && payload.new.last_message_at && new Date(payload.new.last_message_at) > new Date(fetchedUntil.current)) {
                                     console.warn(`Could not find contact to update contact for id: ${payload.new.wa_id}`)
-                                    existingContacts.splice(0, 0, payload.new)
+                                    existingContacts.splice(0, 0, timeSinceAdded)
                                 } else {
-                                    existingContacts.splice(0, 0, payload.new)
+                                    existingContacts.splice(0, 0, timeSinceAdded)
                                 }
                                 sortContacts(existingContacts)
                                 if (existingContacts.length > 0) {
