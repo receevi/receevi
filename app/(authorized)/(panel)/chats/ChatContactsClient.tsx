@@ -34,10 +34,24 @@ export default function ChatContactsClient() {
                 </TabsList>
             </Tabs>
             <div className="flex flex-col h-full overflow-y-auto" ref={chatListRef} onScroll={onDivScroll}>
-                {contacts && contacts.map(contact => {
+                {contacts.length > 0 && contacts.map(contact => {
                     return <ContactUI key={contact.wa_id} contact={contact} />
                 })}
-                {!contacts && <div>No contacts to show</div>}
+                {contacts.length === 0 && (
+                    <div className="p-4 text-center">
+                        {(() => {
+                            if (active) {
+                                return <>
+                                    No active chats at the moment. You'll see contacts here with an open chat window.
+                                </>
+                            } else {
+                                return <>
+                                    No inactive chats. Contacts whose chat window has expired will appear here.
+                                </>
+                            }
+                        })()}
+                    </div>
+                )}
                 {isLoading && (
                     <div className="w-full flex justify-center items-center py-4">
                         <LoaderCircleIcon className="animate-spin" />
