@@ -32,7 +32,7 @@ export default function PanelClient({ children }: { children: ReactNode }) {
 
     return (
         <div className="flex flex-col h-screen">
-            <div className="h-16 flex flex-row justify-between px-4">
+            <div className="h-16 flex flex-row justify-between px-4 flex-shrink-0">
                 <div className="flex flex-row">
                     <div className="flex flex-row gap-2 items-center">
                         <img src="/assets/img/icon.svg" className="w-8 h-8" />
@@ -91,7 +91,7 @@ export default function PanelClient({ children }: { children: ReactNode }) {
                 <div className="mt-8">
                 </div>
             </div> */}
-            <div className="h-[calc(100vh-4rem)] overflow-y-auto bg-gray-100">
+            <div className="h-full overflow-y-auto bg-gray-100 flex-grow">
                 {children}
             </div>
         </div>

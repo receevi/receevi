@@ -12,6 +12,9 @@ import { Button } from "@/components/ui/button";
 import TemplateSelection from "@/components/ui/template-selection";
 import { TemplateRequest } from "@/types/message-template-request";
 import TWLoader from "@/components/TWLoader";
+import { CircleAlertIcon } from "lucide-react";
+import { UPDATE_CURRENT_CONTACT, useCurrentContactDispatch } from "../CurrentContactContext";
+import { isLessThanADay } from "@/lib/time-utils";
 
 export const revalidate = 0
 
@@ -22,24 +25,23 @@ export default function ContactChat({ params }: { params: { wa_id: string } }) {
     const [supabase] = useState(() => createClient())
     const [messageTemplateSending, setMessageTemplateSending] = useState<boolean>(false);
     const [contact, setContact] = useState<Contact | undefined>();
+    const setCurrentContact = useCurrentContactDispatch()
 
     useEffect(() => {
         contactRepository.getContactById(params.wa_id).then((contact) => {
             if (contact) {
                 setContact(contact)
                 setLastMessageReceivedAt(contact.last_message_received_at ? new Date(contact.last_message_received_at) : undefined)
+                if (setCurrentContact) {
+                    setCurrentContact({ type: UPDATE_CURRENT_CONTACT, contact: contact })
+                }
             }
         })
-    }, [contactRepository, setChatWindowOpen, params.wa_id, setLastMessageReceivedAt, setContact])
+    }, [contactRepository, setChatWindowOpen, params.wa_id, setLastMessageReceivedAt, setContact, setCurrentContact])
 
     useEffect(() => {
         if (lastMessageReceivedAt) {
-            const minute = 1000 * 60;
-            const hour = minute * 60;
-            const day = hour * 24;
-            const messageCreationTime = lastMessageReceivedAt.getTime()
-            const currentTime = (new Date()).getTime()
-            const isChatWindowOpen = (currentTime - messageCreationTime) < day
+            const isChatWindowOpen = isLessThanADay(lastMessageReceivedAt)
             setChatWindowOpen(isChatWindowOpen)
         } else {
             setChatWindowOpen(false)
@@ -88,27 +90,42 @@ export default function ContactChat({ params }: { params: { wa_id: string } }) {
             <div className="bg-conversation-panel-background h-full relative flex-grow">
                 <div className="bg-chat-img h-full w-full absolute bg-[length:412.5px_749.25px] opacity-40"></div>
                 <div className="h-full relative flex flex-col">
-                    <ChatHeader waId={params.wa_id} />
-                    <MessageListClient from={params.wa_id} />
                     {(() => {
-                        if (typeof isChatWindowOpen !== 'undefined' && typeof contact !== 'undefined') {
-                            if (isChatWindowOpen) {
-                                return <SendMessageWrapper waId={params.wa_id} />
-                            } else {
-                                return (
-                                    <div className="p-4 bg-white flex flex-row gap-4 items-center">
-                                        <span className="text-sm">You can only send a message within 24 hours of the last customer interaction. Please wait until the customer reaches out to you again or send a template message. <a className="text-blue-500" href="https://developers.facebook.com/docs/whatsapp/cloud-api/guides/send-messages#customer-service-windows" target="_blank" rel="noopener noreferrer">Read more</a></span>
-                                        <TemplateSelection onTemplateSubmit={onTemplateSubmit}>
-                                            <Button disabled={messageTemplateSending} className="min-w-fit">
-                                                {messageTemplateSending && <><TWLoader className="w-5 h-5" /> &nbsp;&nbsp; </>}
-                                                Send template message
-                                            </Button>
-                                        </TemplateSelection>
-                                    </div>
-                                )
-                            }
+                        if (contact) {
+                            return (
+                                <>
+                                    <ChatHeader contact={contact} />
+                                    <MessageListClient from={params.wa_id} />
+                                    {(() => {
+                                        if (typeof isChatWindowOpen !== 'undefined' && typeof contact !== 'undefined') {
+                                            if (isChatWindowOpen) {
+                                                return <SendMessageWrapper waId={params.wa_id} />
+                                            } else {
+                                                return (
+                                                    <div className="p-4 bg-white flex flex-row gap-4 items-center">
+                                                        <span className="text-sm">You can only send a message within 24 hours of the last customer interaction. Please wait until the customer reaches out to you again or send a template message. <a className="text-blue-500" href="https://developers.facebook.com/docs/whatsapp/cloud-api/guides/send-messages#customer-service-windows" target="_blank" rel="noopener noreferrer">Read more</a></span>
+                                                        <TemplateSelection onTemplateSubmit={onTemplateSubmit}>
+                                                            <Button disabled={messageTemplateSending} className="min-w-fit">
+                                                                {messageTemplateSending && <><TWLoader className="w-5 h-5" /> &nbsp;&nbsp; </>}
+                                                                Send template message
+                                                            </Button>
+                                                        </TemplateSelection>
+                                                    </div>
+                                                )
+                                            }
+                                        }
+                                        return <></>
+                                    })()}
+                                </>
+                            )
+                        } else {
+                            return (
+                                <div className="flex flex-col justify-center items-center h-full gap-2">
+                                    <CircleAlertIcon/>
+                                    <span className="text-lg">Chat does not exists</span>
+                                </div>
+                            )
                         }
-                        return <></>
                     })()}
                 </div>
             </div>

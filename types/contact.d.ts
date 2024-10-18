@@ -10,3 +10,8 @@ export type Contact = {
     unread_count: number | null,
     assigned_to: string | null,
 }
+
+
+export type ContactFE = Contact & {
+    timeSince?: string | null,
+}
