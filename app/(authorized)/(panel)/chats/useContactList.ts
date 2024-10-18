@@ -1,6 +1,6 @@
 import { useSupabase } from "@/components/supabase-provider";
 import { DBTables } from "@/lib/enums/Tables";
-import { timeSince } from "@/lib/time-utils";
+import { isLessThanADay } from "@/lib/time-utils";
 import { Contact } from "@/types/contact";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -65,6 +65,12 @@ export function useContactList(search: string, active: boolean) {
             }
         }
     }, [getContacts, fetchedUntil, isLoading, setIsLoading, active])
+
+    useEffect(() => {
+        noMore.current = false
+        fetchedUntil.current = null
+    }, [active])
+
     useEffect(() => {
         setIsLoading(true)
         getContacts(active).then((contacts) => {
@@ -95,6 +101,13 @@ export function useContactList(search: string, active: boolean) {
                     setContacts((existingContacts) => {
                         switch (payload.eventType) {
                             case "INSERT":
+                                if (payload.new.last_message_received_at) {
+                                    const isChatActive = isLessThanADay(new Date(payload.new.last_message_received_at))
+                                    if ((active && !isChatActive) || (!active && isChatActive))
+                                    {
+                                        return existingContacts
+                                    }
+                                }
                                 if (fetchedUntil.current && payload.new.last_message_at) {
                                     if (new Date(payload.new.last_message_at) > new Date(fetchedUntil.current)) {
                                         existingContacts.push(payload.new)
@@ -107,6 +120,13 @@ export function useContactList(search: string, active: boolean) {
                                     return [...existingContacts]
                                 }
                             case "UPDATE":
+                                if (payload.new.last_message_received_at) {
+                                    const isChatActive = isLessThanADay(new Date(payload.new.last_message_received_at))
+                                    if ((active && !isChatActive) || (!active && isChatActive))
+                                    {
+                                        return existingContacts
+                                    }
+                                }
                                 const indexOfItem = existingContacts.findIndex(contact => contact.wa_id === payload.new.wa_id)
                                 if (indexOfItem !== -1) {
                                     existingContacts[indexOfItem] = payload.new
@@ -132,6 +152,6 @@ export function useContactList(search: string, active: boolean) {
             )
             .subscribe()
         return () => { supabase.removeChannel(channel) };
-    }, [supabase, setContacts])
+    }, [supabase, setContacts, active])
     return [contacts, loadMore, isLoading] as const;
 }

@@ -1,10 +1,10 @@
 'use client'
 
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LoaderCircleIcon } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import ContactUI from "./ContactUI";
 import { useContactList } from "./useContactList";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function ChatContactsClient() {
     const [active, setActive] = useState<boolean>(true)
@@ -21,17 +21,29 @@ export default function ChatContactsClient() {
         }
     }, [loadMore, chatListRef]);
 
+    const onTabChange = useCallback((value: string) => {
+        setActive(value === 'active')
+    }, [setActive])
+
     return (
-        <div className="flex flex-col h-full overflow-y-auto" ref={chatListRef} onScroll={onDivScroll}>
-            {contacts && contacts.map(contact => {
-                return <ContactUI key={contact.wa_id} contact={contact} />
-            })}
-            {!contacts && <div>No contacts to show</div>}
-            {isLoading && (
-                <div className="w-full flex justify-center items-center py-4">
-                    <LoaderCircleIcon className="animate-spin" />
-                </div>
-            )}
+        <div className="h-full flex flex-col gap-2">
+            <Tabs defaultValue="active" className="px-2 pt-2" onValueChange={onTabChange}>
+                <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="active">Active</TabsTrigger>
+                    <TabsTrigger value="inactive">Inactive</TabsTrigger>
+                </TabsList>
+            </Tabs>
+            <div className="flex flex-col h-full overflow-y-auto" ref={chatListRef} onScroll={onDivScroll}>
+                {contacts && contacts.map(contact => {
+                    return <ContactUI key={contact.wa_id} contact={contact} />
+                })}
+                {!contacts && <div>No contacts to show</div>}
+                {isLoading && (
+                    <div className="w-full flex justify-center items-center py-4">
+                        <LoaderCircleIcon className="animate-spin" />
+                    </div>
+                )}
+            </div>
         </div>
     )
 }

@@ -14,6 +14,7 @@ import { TemplateRequest } from "@/types/message-template-request";
 import TWLoader from "@/components/TWLoader";
 import { CircleAlertIcon } from "lucide-react";
 import { UPDATE_CURRENT_CONTACT, useCurrentContactDispatch } from "../CurrentContactContext";
+import { isLessThanADay } from "@/lib/time-utils";
 
 export const revalidate = 0
 
@@ -40,12 +41,7 @@ export default function ContactChat({ params }: { params: { wa_id: string } }) {
 
     useEffect(() => {
         if (lastMessageReceivedAt) {
-            const minute = 1000 * 60;
-            const hour = minute * 60;
-            const day = hour * 24;
-            const messageCreationTime = lastMessageReceivedAt.getTime()
-            const currentTime = (new Date()).getTime()
-            const isChatWindowOpen = (currentTime - messageCreationTime) < day
+            const isChatWindowOpen = isLessThanADay(lastMessageReceivedAt)
             setChatWindowOpen(isChatWindowOpen)
         } else {
             setChatWindowOpen(false)
