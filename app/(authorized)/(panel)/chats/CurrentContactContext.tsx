@@ -26,7 +26,7 @@ const reducer: Reducer<ContactState, Action> = (state, action) => {
 export const CurrentContactContext = createContext<ContactState | null>(null)
 export const CurrentContactDispatchContext = createContext<Dispatch<Action> | null>(null)
 
-export function ContactContextProvider({ children }: { children: ReactElement, contacts: Contact[] }) {
+export function ContactContextProvider({ children }: { children: ReactElement }) {
     const [state, dispatch] = useReducer(reducer, { });
     return (
         <CurrentContactContext.Provider value={state}>

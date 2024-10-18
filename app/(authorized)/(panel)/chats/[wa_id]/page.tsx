@@ -13,6 +13,7 @@ import TemplateSelection from "@/components/ui/template-selection";
 import { TemplateRequest } from "@/types/message-template-request";
 import TWLoader from "@/components/TWLoader";
 import { CircleAlertIcon } from "lucide-react";
+import { UPDATE_CURRENT_CONTACT, useCurrentContactDispatch } from "../CurrentContactContext";
 
 export const revalidate = 0
 
@@ -23,15 +24,19 @@ export default function ContactChat({ params }: { params: { wa_id: string } }) {
     const [supabase] = useState(() => createClient())
     const [messageTemplateSending, setMessageTemplateSending] = useState<boolean>(false);
     const [contact, setContact] = useState<Contact | undefined>();
+    const setCurrentContact = useCurrentContactDispatch()
 
     useEffect(() => {
         contactRepository.getContactById(params.wa_id).then((contact) => {
             if (contact) {
                 setContact(contact)
                 setLastMessageReceivedAt(contact.last_message_received_at ? new Date(contact.last_message_received_at) : undefined)
+                if (setCurrentContact) {
+                    setCurrentContact({ type: UPDATE_CURRENT_CONTACT, contact: contact })
+                }
             }
         })
-    }, [contactRepository, setChatWindowOpen, params.wa_id, setLastMessageReceivedAt, setContact])
+    }, [contactRepository, setChatWindowOpen, params.wa_id, setLastMessageReceivedAt, setContact, setCurrentContact])
 
     useEffect(() => {
         if (lastMessageReceivedAt) {

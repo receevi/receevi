@@ -161,7 +161,7 @@ export default function MessageListClient({ from }: { from: string }) {
         }
     }
     return (
-        <div className="px-16 py-2 overflow-y-auto h-[calc(100vh-13rem)]" ref={messagesEndRef} onScroll={onDivScroll}>
+        <div className="px-16 py-2 overflow-y-auto h-full" ref={messagesEndRef} onScroll={onDivScroll}>
             {stateMessages.map((message, index) => {
                 const messageBody = message.message as MessageJson
                 const messageDateTime = new Date(message.created_at)

@@ -22,7 +22,7 @@ export default function ChatContactsClient() {
     }, [loadMore, chatListRef]);
 
     return (
-        <div className="flex flex-col h-[calc(100vh-6rem)] overflow-y-auto" ref={chatListRef} onScroll={onDivScroll}>
+        <div className="flex flex-col h-full overflow-y-auto" ref={chatListRef} onScroll={onDivScroll}>
             {contacts && contacts.map(contact => {
                 return <ContactUI key={contact.wa_id} contact={contact} />
             })}
