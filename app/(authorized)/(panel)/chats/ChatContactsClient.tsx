@@ -42,7 +42,7 @@ export default function ChatContactsClient() {
                         {(() => {
                             if (active) {
                                 return <>
-                                    No active chats at the moment. You'll see contacts here with an open chat window.
+                                    No active chats at the moment. You&apos;ll see contacts here with an open chat window.
                                 </>
                             } else {
                                 return <>
