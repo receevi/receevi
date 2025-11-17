@@ -16,9 +16,9 @@ function getFileExtensionFromContentDisposition(contentDisposition: string) {
 }
 
 export async function downloadMedia(imageMessage: WebhookMessage) {
-    const mediaDetails = imageMessage.image || imageMessage.video || imageMessage.document
+    const mediaDetails = imageMessage.image || imageMessage.video || imageMessage.document || imageMessage.audio
     if (!mediaDetails) {
-        throw new Error("image details not available in image key")
+        throw new Error("media details not available in message")
     }
     const headerOptions = {
         'Authorization': `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,

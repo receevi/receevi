@@ -90,14 +90,33 @@ This project is meant to be used as whatsapp cloud api webhook receiver. This pr
     ```bash
     supabase functions deploy
     ```
+- **Enable Auth Hook** (REQUIRED for authentication to work)
+    - Go to Supabase > Authentication > Hooks
+    - Find "Custom Access Token" hook
+    - Click "Enable Hook"
+    - Set Method: `Postgres Function`
+    - Set Schema: `public`
+    - Set Function: `custom_access_token_hook`
+    - Click "Save"
 - Go to Supabase > Authentication > Add user > Create New User
 - Enter email address and new password to create a user
+- **Add Admin Role to User** (REQUIRED - run this in SQL Editor)
+    ```sql
+    -- Replace with your user's email
+    INSERT INTO public.user_roles (user_id, role)
+    SELECT id, 'admin'::public.app_role
+    FROM auth.users
+    WHERE email = 'your-email@example.com'
+    ON CONFLICT (user_id, role) DO NOTHING;
+    ```
 - Go to Supabase > Project Settings > Edge Functions
-- Add 2 new secrets
+- Add 3 new secrets (required for broadcast/bulk send features)
     - Secret name: `WHATSAPP_ACCESS_TOKEN`
-    - Value: Whatsapp webhook verify token you generated in prerequisites
+    - Value: Whatsapp cloud API permanent token
     - Secret name: `WHATSAPP_BUSINESS_ACCOUNT_ID`
     - Value: WhatsApp Business Account ID taken from developer console
+    - Secret name: `WHATSAPP_API_PHONE_NUMBER_ID`
+    - Value: Phone number ID (from WhatsApp > API Setup in Facebook Developer Console)
 
 ### Whatsapp setup
 - Go to https://developers.facebook.com/apps/

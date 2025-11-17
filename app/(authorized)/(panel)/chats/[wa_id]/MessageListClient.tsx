@@ -2,7 +2,7 @@
 
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react"
 import { DBTables } from "@/lib/enums/Tables"
-import { MessageJson, TemplateMessage, TextMessage } from "@/types/Message"
+import { ButtonMessage, MessageJson, TemplateMessage, TextMessage } from "@/types/Message"
 import ReceivedImageMessageUI from "./ReceivedImageMessageUI"
 import ReceivedTextMessageUI from "./ReceivedTextMessageUI"
 import TailWrapper from "./TailWrapper"
@@ -10,6 +10,8 @@ import ReceivedTemplateMessageUI from "./ReceivedTemplateMessageUI"
 import { markAsRead } from "./markAsRead"
 import ReceivedVideoMessageUI from "./ReceivedVideoMessageUI"
 import ReceivedDocumentMessageUI from "./ReceivedDocumentMessageUI"
+import ReceivedAudioMessageUI from "./ReceivedAudioMessageUI"
+import ReceivedButtonMessageUI from "./ReceivedButtonMessageUI"
 import { useSupabase } from "@/components/supabase-provider"
 
 type UIMessageModel = DBMessage & {
@@ -206,6 +208,10 @@ export default function MessageListClient({ from }: { from: string }) {
                                                         return <ReceivedTemplateMessageUI message={messageBody as TemplateMessage} />
                                                     case "document":
                                                         return <ReceivedDocumentMessageUI message={message} />
+                                                    case "audio":
+                                                        return <ReceivedAudioMessageUI message={message} />
+                                                    case "button":
+                                                        return <ReceivedButtonMessageUI buttonMessage={messageBody as ButtonMessage} />
                                                     default:
                                                         return <div>Unsupported message</div>
                                                 }

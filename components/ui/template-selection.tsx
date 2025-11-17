@@ -157,27 +157,36 @@ export default function TemplateSelection({ children, onTemplateSubmit }: { chil
                         let headerVars: HeaderArg[] = []
                         switch (component.format) {
                             case "IMAGE": {
-                                headerVars.push({
-                                    argId: '{{1}}',
-                                    type: 'image',
-                                    link: '',
-                                })
+                                // Only ask for link if image is dynamic (not predefined)
+                                if (!component.image || component.example?.header_handle) {
+                                    headerVars.push({
+                                        argId: '{{1}}',
+                                        type: 'image',
+                                        link: '',
+                                    })
+                                }
                                 break;
                             }
                             case "VIDEO": {
-                                headerVars.push({
-                                    argId: '{{1}}',
-                                    type: 'video',
-                                    link: '',
-                                })
+                                // Only ask for link if video is dynamic (not predefined)
+                                if (!component.video || component.example?.header_handle) {
+                                    headerVars.push({
+                                        argId: '{{1}}',
+                                        type: 'video',
+                                        link: '',
+                                    })
+                                }
                                 break;
                             }
                             case "DOCUMENT": {
-                                headerVars.push({
-                                    argId: '{{1}}',
-                                    type: 'document',
-                                    link: '',
-                                })
+                                // Only ask for link if document is dynamic (not predefined)
+                                if (!component.document || component.example?.header_handle) {
+                                    headerVars.push({
+                                        argId: '{{1}}',
+                                        type: 'document',
+                                        link: '',
+                                    })
+                                }
                                 break;
                             }
                             case "TEXT": {
@@ -278,20 +287,24 @@ export default function TemplateSelection({ children, onTemplateSubmit }: { chil
                 }
             }
         }) as any
-        request.components.push({
-            type: "header",
-            parameters: headerArgs
-        })
+        if (headerArgs.length > 0) {
+            request.components.push({
+                type: "header",
+                parameters: headerArgs
+            })
+        }
         const bodyArgs: TextParameter[] = values.body.map((b) => {
             return {
                 type: 'text',
                 text: b.text
             }
         })
-        request.components.push({
-            type: "body",
-            parameters: bodyArgs
-        })
+        if (bodyArgs.length > 0) {
+            request.components.push({
+                type: "body",
+                parameters: bodyArgs
+            })
+        }
         const buttonPayloads: RequestComponent[] = values.button.map(b => {
             return {
                 type: 'button',

@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
             }), { onConflict: 'wam_id', ignoreDuplicates: true })
           if (error) throw new Error("Error while inserting messages to database", { cause: error})
           for (const message of messages) {
-            if (message.type === 'image' || message.type === 'video' || message.type === 'document') {
+            if (message.type === 'image' || message.type === 'video' || message.type === 'document' || message.type === 'audio') {
               await downloadMedia(message)
             }
           }

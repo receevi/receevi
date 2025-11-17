@@ -29,3 +29,22 @@ export type TemplateMessage = MessageJson & {
 export type ImageMessage = MessageJson & {
     image: ImageMessageBody,
 }
+
+export type ButtonMessageBody = {
+    text: string,
+    payload: string,
+}
+
+export type ButtonMessage = MessageJson & {
+    button: ButtonMessageBody,
+}
+
+export type AudioMessageBody = {
+    mime_type: string,
+    sha256: string,
+    id: string,
+}
+
+export type AudioMessage = MessageJson & {
+    audio: AudioMessageBody,
+}

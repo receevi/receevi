@@ -4,6 +4,11 @@ export type WebhookImage = {
     mime_type: string,
 }
 
+export type WebhookButton = {
+    text: string,
+    payload: string,
+}
+
 export type WebhookMessage = {
     from: string,
     id: string,
@@ -11,7 +16,9 @@ export type WebhookMessage = {
     image?: WebhookImage,
     video?: WebhookImage,
     document?: WebhookImage,
-    type: 'text' | 'reaction' | 'image' | 'video' | 'document',
+    audio?: WebhookImage,
+    button?: WebhookButton,
+    type: 'text' | 'reaction' | 'image' | 'video' | 'document' | 'audio' | 'button',
 }
 
 export type WebhookStatus = {
